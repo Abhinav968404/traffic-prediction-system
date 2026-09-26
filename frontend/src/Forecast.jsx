@@ -26,9 +26,6 @@ function Forecast() {
   </div>
 </div>
         <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/forecast">Forecast</Link>
-          <a href="#history">History</a>
         </div>
 
         <button className="nav-button">

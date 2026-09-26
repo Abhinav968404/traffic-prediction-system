@@ -9,6 +9,7 @@ import {
 
 import "./App.css";
 import Forecast from "./Forecast";
+import Dashboard from "./Dashboard";
 
 /* =========================================================
    DELHI NCR LOCATIONS
@@ -337,10 +338,13 @@ function Home() {
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
-
   const [showTimePicker, setShowTimePicker] = useState(false);
+
   const [selectedHour, setSelectedHour] = useState(null);
   const [selectedMinute, setSelectedMinute] = useState(null);
+
+  const [period, setPeriod] = useState("AM");
+  const [timeStep, setTimeStep] = useState("hour");
 
   const navigate = useNavigate();
 
@@ -393,18 +397,11 @@ function Home() {
         </div>
 
         <div className="nav-links">
-
-          <Link to="/">Home</Link>
-
-          <Link to="/forecast">Forecast</Link>
-
-          <a href="#history">History</a>
-
         </div>
 
-        <button className="nav-button">
-          Dashboard
-        </button>
+        <Link to="/dashboard" className="nav-button">
+  Dashboard
+</Link>
 
       </nav>
 
@@ -684,173 +681,228 @@ function Home() {
         </div>
 
       </section>
-          CUSTOM TIME PICKER
-      ================================================= */
-
       {showTimePicker && (
-        <div
-          className="time-picker-overlay"
+  <div
+    className="time-picker-overlay"
+    onClick={() => setShowTimePicker(false)}
+  >
+    <div
+      className="time-picker"
+      onClick={(e) => e.stopPropagation()}
+    >
+
+      {/* HEADER */}
+      <div className="time-picker-header">
+        <span>SELECT TIME</span>
+
+        <button
+          className="time-close"
           onClick={() => setShowTimePicker(false)}
         >
-          <div
-            className="time-picker"
-            onClick={(e) => e.stopPropagation()}
-          >
-
-            <div className="time-picker-header">
-              <span>DEPARTURE TIME</span>
-
-              <button
-                type="button"
-                onClick={() => setShowTimePicker(false)}
-              >
-                ✕
-              </button>
-            </div>
+          ×
+        </button>
+      </div>
 
 
-            <div className="selected-time">
+      {/* DIGITAL TIME */}
+      <div className="digital-time">
 
-              <span
-                className={
-                  selectedHour !== null ? "active-time" : ""
-                }
-              >
-                {selectedHour !== null
-                  ? String(selectedHour).padStart(2, "0")
-                  : "--"}
-              </span>
+        <button
+          className={
+            timeStep === "hour"
+              ? "time-digit active"
+              : "time-digit"
+          }
+          onClick={() => setTimeStep("hour")}
+        >
+          {selectedHour !== null
+            ? String(selectedHour).padStart(2, "0")
+            : "--"}
+        </button>
 
-              <span>:</span>
+        <span>:</span>
 
-              <span
-                className={
-                  selectedMinute !== null ? "active-time" : ""
-                }
-              >
-                {selectedMinute !== null
-                  ? String(selectedMinute).padStart(2, "0")
-                  : "--"}
-              </span>
+        <button
+          className={
+            timeStep === "minute"
+              ? "time-digit active"
+              : "time-digit"
+          }
+          onClick={() => setTimeStep("minute")}
+        >
+          {selectedMinute !== null
+            ? String(selectedMinute).padStart(2, "0")
+            : "--"}
+        </button>
 
-            </div>
-
-
-            {/* CLOCK */}
-
-            <div className="clock-face">
-
-              {Array.from({ length: 12 }, (_, i) => {
-
-                const hour = i + 1;
-                const angle = i * 30 - 60;
-
-                return (
-                  <button
-                    type="button"
-                    key={hour}
-                    className="clock-number"
-                    style={{
-                      transform: `
-                        rotate(${angle}deg)
-                        translate(100px)
-                        rotate(${-angle}deg)
-                      `
-                    }}
-                    onClick={() => {
-                      setSelectedHour(hour);
-                    }}
-                  >
-                    {hour}
-                  </button>
-                );
-
-              })}
-
-              <div className="clock-center"></div>
-
-            </div>
+      </div>
 
 
-            {/* MINUTES */}
+      {/* AM / PM */}
+      <div className="period-selector">
 
-            <div className="minute-section">
+        <button
+          className={period === "AM" ? "period active" : "period"}
+          onClick={() => setPeriod("AM")}
+        >
+          AM
+        </button>
 
-              <span>MINUTES</span>
+        <button
+          className={period === "PM" ? "period active" : "period"}
+          onClick={() => setPeriod("PM")}
+        >
+          PM
+        </button>
 
-              <div className="minute-options">
-
-                {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map(
-                  (minute) => (
-
-                    <button
-                      type="button"
-                      key={minute}
-                      className={
-                        selectedMinute === minute
-                          ? "minute-option selected"
-                          : "minute-option"
-                      }
-                      onClick={() => {
-                        setSelectedMinute(minute);
-                      }}
-                    >
-                      {String(minute).padStart(2, "0")}
-                    </button>
-
-                  )
-                )}
-
-              </div>
-
-            </div>
+      </div>
 
 
-            {/* BUTTONS */}
+      {/* CLOCK */}
+      {timeStep === "hour" && (
+        <div className="clock-container">
 
-            <div className="time-picker-actions">
+          <div className="clock-face">
 
-              <button
-                type="button"
-                className="cancel-time"
-                onClick={() => {
-                  setShowTimePicker(false);
-                }}
-              >
-                Cancel
-              </button>
+            {Array.from({ length: 12 }, (_, i) => {
 
+              const hour = i + 1;
 
-              <button
-                type="button"
-                className="confirm-time"
-                onClick={() => {
+              const angle = i * 30 - 90;
 
-                  if (
-                    selectedHour !== null &&
-                    selectedMinute !== null
-                  ) {
+              const radius = 105;
 
-                    const formatted =
-                      `${String(selectedHour).padStart(2, "0")}:${String(
-                        selectedMinute
-                      ).padStart(2, "0")}`;
+              const x =
+                Math.cos((angle * Math.PI) / 180) * radius;
 
-                    setTime(formatted);
-                    setShowTimePicker(false);
+              const y =
+                Math.sin((angle * Math.PI) / 180) * radius;
 
+              return (
+                <button
+                  key={hour}
+                  className={
+                    selectedHour === hour
+                      ? "clock-number selected"
+                      : "clock-number"
                   }
+                  style={{
+                    left: `calc(50% + ${x}px)`,
+                    top: `calc(50% + ${y}px)`,
+                  }}
+                  onClick={() => {
+                    setSelectedHour(hour);
+                    setTimeStep("minute");
+                  }}
+                >
+                  {hour}
+                </button>
+              );
+            })}
 
+            <div className="clock-center"></div>
+
+            {selectedHour !== null && (
+              <div
+                className="clock-hand"
+                style={{
+                  transform: `rotate(${
+                    selectedHour * 30
+                  }deg)`,
                 }}
-              >
-                Set Time →
-              </button>
-
-            </div>
+              />
+            )}
 
           </div>
+
         </div>
       )}
+
+
+      {/* MINUTE PICKER */}
+      {timeStep === "minute" && (
+        <div className="minute-picker">
+
+          <div className="minute-title">
+            SELECT MINUTES
+          </div>
+
+          <div className="minute-wheel">
+
+            {[
+              0, 5, 10, 15,
+              20, 25, 30, 35,
+              40, 45, 50, 55
+            ].map((minute) => (
+
+              <button
+                key={minute}
+                className={
+                  selectedMinute === minute
+                    ? "minute-value selected"
+                    : "minute-value"
+                }
+                onClick={() => {
+                  setSelectedMinute(minute);
+                }}
+              >
+                {String(minute).padStart(2, "0")}
+              </button>
+
+            ))}
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ACTIONS */}
+      <div className="time-picker-actions">
+
+        <button
+          className="cancel-time"
+          onClick={() => {
+            setShowTimePicker(false);
+          }}
+        >
+          Cancel
+        </button>
+
+        <button
+          className="confirm-time"
+          disabled={
+            selectedHour === null ||
+            selectedMinute === null
+          }
+          onClick={() => {
+
+            if (
+              selectedHour !== null &&
+              selectedMinute !== null
+            ) {
+
+              const formatted =
+                `${String(selectedHour).padStart(2, "0")}:${String(
+                  selectedMinute
+                ).padStart(2, "0"
+                )} ${period}`;
+
+              setTime(formatted);
+              setShowTimePicker(false);
+            }
+
+          }}
+        >
+          Set Time →
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+)}
+      
 
 
     </div>
@@ -870,11 +922,11 @@ function App() {
       <Routes>
 
         <Route path="/" element={<Home />} />
-
         <Route
           path="/forecast"
           element={<Forecast />}
         />
+        <Route path="/dashboard" element={<Dashboard />} />
 
       </Routes>
 

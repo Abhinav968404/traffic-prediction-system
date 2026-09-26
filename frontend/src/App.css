@@ -658,34 +658,38 @@ input {
 /* ---------------- CHART ---------------- */
 
 .chart {
-  height: 220px;
+  height: 260px;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+  position: relative;
 }
 
 .chart-line {
-  height: 170px;
+  height: 200px;
+  width: 100%;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 12px;
-  padding: 0 5px;
+  gap: 14px;
+  padding: 0 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .chart-line span {
+  display: block;
   flex: 1;
-  max-width: 45px;
-  min-height: 10px;
+  height: var(--bar-height);
+  min-height: 20px;
+  max-width: 50px;
   border-radius: 7px 7px 0 0;
   background: linear-gradient(
     to top,
     #22c55e,
     #38bdf8
   );
-  opacity: 0.85;
-  transition: 0.2s;
+  opacity: 0.9;
+  transition: 0.2s ease;
 }
 
 .chart-line span:hover {
@@ -697,7 +701,7 @@ input {
   display: flex;
   justify-content: space-between;
   gap: 10px;
-  padding-top: 12px;
+  padding: 12px 8px 0;
   color: #64748b;
   font-size: 10px;
 }
@@ -1229,318 +1233,826 @@ input {
 /* CUSTOM TIME PICKER */
 /* ============================= */
 
-.time-input {
-  cursor: pointer;
-  user-select: none;
-}
-
-.time-input:hover {
-  border-color: #22c55e;
-}
-
-.time-placeholder {
-  color: #475569;
-}
-
-.time-value {
-  color: white;
-  font-weight: 600;
-}
-
-.clock-icon {
-  margin-left: auto;
-  color: #94a3b8;
-  font-size: 20px;
-}
-
-/* OVERLAY */
+/* ============================= */
+/* TIME PICKER OVERLAY */
+/* ============================= */
 
 .time-picker-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
+  background: rgba(2, 8, 18, 0.82);
+  backdrop-filter: blur(10px);
 
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
 
   z-index: 9999;
 }
 
-/* POPUP */
+
+/* ============================= */
+/* MAIN PICKER */
+/* ============================= */
 
 .time-picker {
-  width: 390px;
-  padding: 26px;
+  width: 410px;
+  min-height: 620px;
 
-  background: #0f1b2d;
+  background: #0d192a;
+  border: 1px solid #26374e;
+  border-radius: 24px;
 
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 22px;
+  padding: 30px;
 
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.55),
-    0 0 50px rgba(34, 197, 94, 0.08);
+    0 0 40px rgba(34, 197, 94, 0.05);
+
+  color: #e8eef7;
 }
 
+
+/* ============================= */
 /* HEADER */
+/* ============================= */
 
 .time-picker-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  color: #94a3b8;
-
+  color: #91a4bd;
   font-size: 12px;
-  font-weight: 800;
-
-  letter-spacing: 1.5px;
+  font-weight: 700;
+  letter-spacing: 2px;
 }
 
-.time-picker-header button {
+.time-close {
   border: none;
   background: transparent;
-  color: #94a3b8;
 
-  font-size: 18px;
+  color: #8fa2ba;
+  font-size: 28px;
+
+  cursor: pointer;
+
+  line-height: 1;
+}
+
+.time-close:hover {
+  color: #ffffff;
+}
+
+
+/* ============================= */
+/* DIGITAL TIME */
+/* ============================= */
+
+.digital-time {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-top: 22px;
+  margin-bottom: 18px;
+
+  font-size: 48px;
+  font-weight: 700;
+}
+
+.time-digit {
+  border: none;
+  background: transparent;
+
+  color: #66768d;
+
+  font-size: 48px;
+  font-weight: 700;
+
+  padding: 4px 10px;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.time-digit.active {
+  background: rgba(34, 197, 94, 0.14);
+  color: #22c55e;
+}
+
+.time-digit:hover {
+  color: #22c55e;
+}
+
+
+/* ============================= */
+/* AM / PM */
+/* ============================= */
+
+.period-selector {
+  display: flex;
+
+  width: 180px;
+
+  margin: 0 auto 25px;
+
+  border: 1px solid #2a3b52;
+  border-radius: 10px;
+
+  overflow: hidden;
+}
+
+.period {
+  flex: 1;
+
+  padding: 9px;
+
+  border: none;
+
+  background: #111f32;
+  color: #7f91a8;
+
+  font-weight: 700;
 
   cursor: pointer;
 }
 
-.time-picker-header button:hover {
-  color: white;
+.period.active {
+  background: #22c55e;
+  color: #04130a;
 }
 
-/* SELECTED TIME */
 
-.selected-time {
-  text-align: center;
-
-  margin: 22px 0;
-
-  font-size: 42px;
-  font-weight: 800;
-
-  letter-spacing: 4px;
-
-  color: #475569;
-}
-
-.active-time {
-  color: #22c55e;
-}
-
+/* ============================= */
 /* CLOCK */
+/* ============================= */
+
+.clock-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  margin: 10px 0 30px;
+}
 
 .clock-face {
-  width: 240px;
-  height: 240px;
-
-  margin: 0 auto 25px;
-
   position: relative;
 
+  width: 250px;
+  height: 250px;
+
   border-radius: 50%;
+
+  border: 1px solid #2a3b52;
 
   background:
     radial-gradient(
       circle,
-      #14243a 0%,
-      #0b1728 65%,
-      #081321 100%
+      #13253a 0%,
+      #0d192a 70%
     );
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
-
   box-shadow:
-    inset 0 0 30px rgba(0, 0, 0, 0.4),
-    0 15px 40px rgba(0, 0, 0, 0.3);
+    inset 0 0 30px rgba(0, 0, 0, 0.35);
 }
+
 
 /* CLOCK NUMBERS */
 
 .clock-number {
   position: absolute;
 
-  left: 50%;
-  top: 50%;
+  transform: translate(-50%, -50%);
 
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
 
-  margin-left: -18px;
-  margin-top: -18px;
+  border-radius: 50%;
 
   border: none;
-  border-radius: 50%;
 
   background: transparent;
 
-  color: #cbd5e1;
+  color: #d2dbe7;
 
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
 
   cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .clock-number:hover {
-  background: #22c55e;
-  color: #04100a;
-
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.45);
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
 }
 
-/* CENTER */
+.clock-number.selected {
+  background: #22c55e;
+  color: #04130a;
+
+  box-shadow:
+    0 0 20px rgba(34, 197, 94, 0.4);
+}
+
+
+/* CENTER DOT */
 
 .clock-center {
   position: absolute;
 
-  left: 50%;
-  top: 50%;
-
   width: 12px;
   height: 12px;
 
-  transform: translate(-50%, -50%);
+  border-radius: 50%;
 
   background: #22c55e;
 
-  border-radius: 50%;
+  top: 50%;
+  left: 50%;
 
-  box-shadow: 0 0 15px #22c55e;
+  transform: translate(-50%, -50%);
+
+  box-shadow:
+    0 0 15px rgba(34, 197, 94, 0.5);
+
+  z-index: 5;
 }
 
-/* MINUTES */
 
-.minute-section {
-  margin-top: 10px;
+/* CLOCK HAND */
+
+.clock-hand {
+  position: absolute;
+
+  width: 2px;
+  height: 90px;
+
+  background: #22c55e;
+
+  left: calc(50% - 1px);
+  top: calc(50% - 90px);
+
+  transform-origin: bottom center;
+
+  z-index: 2;
+
+  box-shadow:
+    0 0 8px rgba(34, 197, 94, 0.4);
 }
 
-.minute-section > span {
-  display: block;
 
-  margin-bottom: 10px;
+/* ============================= */
+/* MINUTE PICKER */
+/* ============================= */
 
-  color: #64748b;
+.minute-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  margin: 25px 0 40px;
+}
+
+.minute-title {
+  color: #71849d;
 
   font-size: 11px;
   font-weight: 700;
 
-  letter-spacing: 1px;
+  letter-spacing: 2px;
+
+  margin-bottom: 18px;
 }
 
-.minute-options {
+.minute-wheel {
   display: grid;
 
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(3, 1fr);
 
-  gap: 7px;
+  gap: 10px;
+
+  width: 270px;
 }
 
-.minute-option {
-  padding: 8px 4px;
+.minute-value {
+  height: 48px;
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
 
-  border-radius: 7px;
+  border: 1px solid #24364d;
 
-  background: #0a1728;
+  background: #111f32;
 
-  color: #94a3b8;
+  color: #9badc2;
+
+  font-size: 16px;
+  font-weight: 600;
 
   cursor: pointer;
+
+  transition: 0.2s ease;
 }
 
-.minute-option:hover {
+.minute-value:hover {
   border-color: #22c55e;
-  color: white;
+  color: #22c55e;
 }
 
-.minute-option.selected {
+.minute-value.selected {
   background: #22c55e;
   border-color: #22c55e;
 
-  color: #04100a;
+  color: #04130a;
 
-  font-weight: 800;
+  box-shadow:
+    0 0 18px rgba(34, 197, 94, 0.25);
 }
 
-/* ACTIONS */
+
+/* ============================= */
+/* ACTION BUTTONS */
+/* ============================= */
 
 .time-picker-actions {
   display: flex;
 
-  gap: 10px;
+  gap: 12px;
 
-  margin-top: 22px;
+  margin-top: auto;
 }
 
 .cancel-time,
 .confirm-time {
-  height: 45px;
+  flex: 1;
 
-  border-radius: 9px;
+  height: 48px;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 700;
 
   cursor: pointer;
 
-  font-weight: 700;
+  transition: 0.2s ease;
 }
 
 .cancel-time {
-  width: 35%;
+  background: #111f32;
 
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #26374e;
 
-  background: transparent;
-
-  color: #94a3b8;
+  color: #9badc2;
 }
 
 .cancel-time:hover {
-  color: white;
+  background: #18283d;
+  color: #ffffff;
 }
 
 .confirm-time {
-  flex: 1;
-
-  border: none;
-
   background: #22c55e;
 
-  color: #04100a;
+  border: 1px solid #22c55e;
+
+  color: #04130a;
 }
 
 .confirm-time:hover {
-  background: #4ade80;
-}
-.time-input {
-  cursor: pointer;
-  position: relative;
-  z-index: 10;
+  background: #2bd66b;
+
+  transform: translateY(-1px);
 }
 
-.time-input:hover {
-  border-color: #22c55e;
+.confirm-time:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+/* =========================================
+   FINAL TRAFFIQ TIME PICKER OVERRIDES
+   ========================================= */
+
+.time-picker-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  background: rgba(2, 8, 18, 0.82) !important;
+  backdrop-filter: blur(10px);
 }
 
-.time-input:active {
-  transform: scale(0.995);
-}
+.time-picker {
+  width: 420px !important;
+  height: auto !important;
+  min-height: 0 !important;
 
-.time-placeholder {
-  color: #475569;
-}
+  padding: 28px !important;
 
-.time-value {
+  background: #0d192a !important;
+  border: 1px solid #26374e !important;
+  border-radius: 24px !important;
+
+  box-sizing: border-box !important;
+
   color: white;
-  font-weight: 600;
 }
 
-.clock-icon {
-  margin-left: auto;
-  color: #94a3b8;
-  font-size: 20px;
+
+/* HEADER */
+
+.time-picker-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+
+  margin-bottom: 12px !important;
+}
+
+.time-picker-header span {
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 2px !important;
+  color: #91a4bd !important;
+}
+
+.time-close {
+  width: 32px !important;
+  height: 32px !important;
+
+  padding: 0 !important;
+
+  background: transparent !important;
+  border: none !important;
+
+  color: #91a4bd !important;
+  font-size: 25px !important;
+
+  cursor: pointer !important;
+}
+
+
+/* DIGITAL TIME */
+
+.digital-time {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  gap: 4px !important;
+
+  margin: 4px 0 14px !important;
+
+  font-size: 34px !important;
+  font-weight: 700 !important;
+}
+
+.time-digit {
+  width: auto !important;
+  height: auto !important;
+
+  padding: 5px 10px !important;
+
+  border: none !important;
+  border-radius: 8px !important;
+
+  background: transparent !important;
+
+  color: #71849d !important;
+
+  font-size: 34px !important;
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+}
+
+.time-digit.active {
+  color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.12) !important;
+}
+
+
+/* AM / PM */
+
+.period-selector {
+  display: flex !important;
+
+  width: 150px !important;
+  height: 36px !important;
+
+  margin: 0 auto 20px !important;
+
+  border: 1px solid #293b52 !important;
+  border-radius: 8px !important;
+
+  overflow: hidden !important;
+}
+
+.period {
+  flex: 1 !important;
+
+  border: none !important;
+
+  background: #111f32 !important;
+  color: #7f91a8 !important;
+
+  font-size: 13px !important;
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+}
+
+.period.active {
+  background: #22c55e !important;
+  color: #04130a !important;
+}
+
+
+/* CLOCK */
+
+.clock-container {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  margin: 5px 0 25px !important;
+}
+
+.clock-face {
+  position: relative !important;
+
+  width: 250px !important;
+  height: 250px !important;
+
+  flex-shrink: 0 !important;
+
+  border-radius: 50% !important;
+
+  border: 1px solid #293b52 !important;
+
+  background: radial-gradient(
+    circle,
+    #13253a 0%,
+    #0d192a 72%
+  ) !important;
+}
+
+
+/* CLOCK NUMBERS */
+
+.clock-number {
+  position: absolute !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  width: 34px !important;
+  height: 34px !important;
+
+  padding: 0 !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+
+  border: none !important;
+  border-radius: 50% !important;
+
+  background: transparent !important;
+
+  color: #d2dbe7 !important;
+
+  font-size: 14px !important;
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+
+  z-index: 10 !important;
+}
+
+.clock-number:hover {
+  background: rgba(34, 197, 94, 0.12) !important;
+  color: #22c55e !important;
+}
+
+.clock-number.selected {
+  background: #22c55e !important;
+  color: #04130a !important;
+
+  box-shadow: 0 0 18px rgba(34, 197, 94, 0.4) !important;
+}
+
+
+/* CENTER */
+
+.clock-center {
+  position: absolute !important;
+
+  width: 11px !important;
+  height: 11px !important;
+
+  top: 50% !important;
+  left: 50% !important;
+
+  transform: translate(-50%, -50%) !important;
+
+  border-radius: 50% !important;
+
+  background: #22c55e !important;
+
+  z-index: 20 !important;
+}
+
+
+/* HAND */
+
+.clock-hand {
+  position: absolute !important;
+
+  width: 2px !important;
+  height: 92px !important;
+
+  left: calc(50% - 1px) !important;
+  top: calc(50% - 92px) !important;
+
+  background: #22c55e !important;
+
+  transform-origin: bottom center !important;
+
+  z-index: 15 !important;
+}
+
+
+/* =========================================
+   MINUTES
+   ========================================= */
+
+.minute-picker {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+
+  margin: 15px 0 25px !important;
+}
+
+.minute-title {
+  margin-bottom: 15px !important;
+
+  color: #71849d !important;
+
+  font-size: 11px !important;
+  font-weight: 700 !important;
+
+  letter-spacing: 2px !important;
+}
+
+.minute-wheel {
+  display: grid !important;
+
+  grid-template-columns: repeat(4, 1fr) !important;
+
+  gap: 8px !important;
+
+  width: 280px !important;
+}
+
+.minute-value {
+  width: 62px !important;
+  height: 42px !important;
+
+  padding: 0 !important;
+
+  border: 1px solid #26374e !important;
+  border-radius: 8px !important;
+
+  background: #111f32 !important;
+
+  color: #9badc2 !important;
+
+  font-size: 14px !important;
+  font-weight: 600 !important;
+
+  cursor: pointer !important;
+}
+
+.minute-value:hover {
+  border-color: #22c55e !important;
+  color: #22c55e !important;
+}
+
+.minute-value.selected {
+  background: #22c55e !important;
+  border-color: #22c55e !important;
+
+  color: #04130a !important;
+}
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+.time-picker-actions {
+  display: flex !important;
+
+  gap: 12px !important;
+
+  margin-top: 10px !important;
+}
+
+.cancel-time,
+.confirm-time {
+  flex: 1 !important;
+
+  height: 48px !important;
+
+  border-radius: 10px !important;
+
+  font-size: 15px !important;
+  font-weight: 700 !important;
+
+  cursor: pointer !important;
+}
+
+.cancel-time {
+  background: #111f32 !important;
+
+  border: 1px solid #26374e !important;
+
+  color: #9badc2 !important;
+}
+
+.confirm-time {
+  background: #22c55e !important;
+
+  border: 1px solid #22c55e !important;
+
+  color: #04130a !important;
+}
+
+.confirm-time:disabled {
+  opacity: 0.35 !important;
+  cursor: not-allowed !important;
+}
+/* ---------------- PLAN ANOTHER JOURNEY ---------------- */
+
+.another-journey-container {
+  width: 100%;
+  margin-top: 25px;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+
+  background: rgba(15, 27, 45, 0.85);
+
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+.another-journey-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 12px 24px;
+
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 10px;
+
+  background: rgba(34, 197, 94, 0.08);
+
+  color: #4ade80 !important;
+  font-size: 14px !important;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: 0.2s ease;
+}
+
+.another-journey-button:hover {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: #22c55e;
+
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.12);
 }
