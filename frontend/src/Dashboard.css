@@ -147,8 +147,10 @@
 
 .bar {
   width: 34px;
+  min-height: 10px;
   border-radius: 7px 7px 0 0;
   background: linear-gradient(to top, #20b957, #29a9dc);
+  transition: height 0.3s ease;
 }
 
 .bar-1 {

@@ -1,56 +1,169 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./Dashboard.css";
 import { Link } from "react-router-dom";
 
 function Dashboard() {
+  const [traffic, setTraffic] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/traffic/latest")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch traffic data");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setTraffic(data.traffic || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Unable to load traffic data");
+        setLoading(false);
+      });
+  }, []);
+
+  // Latest record for each location
+  const latestByLocation = Object.values(
+    traffic.reduce((acc, item) => {
+      if (!acc[item.locationName]) {
+        acc[item.locationName] = item;
+      }
+      return acc;
+    }, {})
+  );
+
+  // Congestion based on current speed vs free-flow speed
+  const getCongestion = (item) => {
+    const ratio = item.currentSpeed / item.freeFlowSpeed;
+
+    if (ratio >= 0.85) return "Low";
+    if (ratio >= 0.6) return "Moderate";
+    return "High";
+  };
+
+  const getDelay = (item) => {
+    const delay = item.currentTravelTime - item.freeFlowTravelTime;
+    return Math.max(0, Math.round(delay / 60));
+  };
+
+  const avgSpeed =
+    latestByLocation.length > 0
+      ? Math.round(
+          latestByLocation.reduce(
+            (sum, item) => sum + item.currentSpeed,
+            0
+          ) / latestByLocation.length
+        )
+      : 0;
+
+  const avgDelay =
+    latestByLocation.length > 0
+      ? Math.round(
+          latestByLocation.reduce(
+            (sum, item) => sum + getDelay(item),
+            0
+          ) / latestByLocation.length
+        )
+      : 0;
+
+  const lowCount = latestByLocation.filter(
+    (item) => getCongestion(item) === "Low"
+  ).length;
+
+  const moderateCount = latestByLocation.filter(
+    (item) => getCongestion(item) === "Moderate"
+  ).length;
+
+  const highCount = latestByLocation.filter(
+    (item) => getCongestion(item) === "High"
+  ).length;
+
+  const totalLocations = latestByLocation.length || 1;
+
+  const lowPercentage = Math.round((lowCount / totalLocations) * 100);
+  const moderatePercentage = Math.round(
+    (moderateCount / totalLocations) * 100
+  );
+  const highPercentage = Math.round(
+    (highCount / totalLocations) * 100
+  );
+
+  if (loading) {
+    return (
+      <div className="dashboard-page">
+        <h2>Loading traffic data...</h2>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-page">
+        <h2>{error}</h2>
+        <p>
+          Make sure the backend is running on
+          http://localhost:3000
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard-page">
 
       {/* Header */}
       <div className="dashboard-header">
         <div>
-          <span className="dashboard-badge">✦ TRAFFIC ANALYTICS</span>
+          <span className="dashboard-badge">
+            ✦ LIVE TRAFFIC ANALYTICS
+          </span>
+
           <h1>Traffic Dashboard</h1>
+
           <p>
-            Overview of your traffic prediction activity.
+            Real-time traffic conditions collected from the
+            connected traffic data service.
           </p>
         </div>
       </div>
-      
 
 
       {/* Statistics */}
       <div className="dashboard-stats">
 
         <div className="stat-card">
-          <div className="stat-icon">📊</div>
+          <div className="stat-icon">📍</div>
           <div>
-            <span>Total Predictions</span>
-            <h2>24</h2>
+            <span>Locations Tracked</span>
+            <h2>{latestByLocation.length}</h2>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">⏱️</div>
+          <div className="stat-icon">🚗</div>
           <div>
-            <span>Avg. Travel Time</span>
-            <h2>1h 42m</h2>
+            <span>Average Speed</span>
+            <h2>{avgSpeed} km/h</h2>
           </div>
         </div>
 
         <div className="stat-card">
           <div className="stat-icon">⚠️</div>
           <div>
-            <span>Avg. Delay</span>
-            <h2>+18 min</h2>
+            <span>Average Delay</span>
+            <h2>+{avgDelay} min</h2>
           </div>
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon">📍</div>
+          <div className="stat-icon">📊</div>
           <div>
-            <span>Most Used Route</span>
-            <h2>Delhi</h2>
+            <span>Traffic Records</span>
+            <h2>{traffic.length}</h2>
           </div>
         </div>
 
@@ -65,12 +178,12 @@ function Dashboard() {
 
           <div className="card-header">
             <div>
-              <span>TRAFFIC TREND</span>
-              <h3>Congestion throughout the day</h3>
+              <span>TRAFFIC CONDITIONS</span>
+              <h3>Current congestion by location</h3>
             </div>
 
             <div className="trend-label">
-              Last 24 hours
+              Live data
             </div>
           </div>
 
@@ -78,40 +191,35 @@ function Dashboard() {
 
             <div className="chart-bars">
 
-              <div className="bar-wrapper">
-                <div className="bar bar-1"></div>
-                <span>6 AM</span>
-              </div>
+              {latestByLocation.map((item) => {
+                const ratio =
+                  item.currentSpeed / item.freeFlowSpeed;
 
-              <div className="bar-wrapper">
-                <div className="bar bar-2"></div>
-                <span>8 AM</span>
-              </div>
+                const congestionHeight = Math.max(
+                  10,
+                  Math.round((1 - ratio) * 100)
+                );
 
-              <div className="bar-wrapper">
-                <div className="bar bar-3"></div>
-                <span>10 AM</span>
-              </div>
+                return (
+                  <div
+                    className="bar-wrapper"
+                    key={item.locationName}
+                  >
+                    <div
+                      className="bar"
+                      style={{
+                        height: `${congestionHeight}%`
+                      }}
+                    ></div>
 
-              <div className="bar-wrapper">
-                <div className="bar bar-4"></div>
-                <span>12 PM</span>
-              </div>
-
-              <div className="bar-wrapper">
-                <div className="bar bar-5"></div>
-                <span>2 PM</span>
-              </div>
-
-              <div className="bar-wrapper">
-                <div className="bar bar-6"></div>
-                <span>4 PM</span>
-              </div>
-
-              <div className="bar-wrapper">
-                <div className="bar bar-7"></div>
-                <span>6 PM</span>
-              </div>
+                    <span>
+                      {item.locationName
+                        .replace(", Delhi", "")
+                        .replace("Connaught Place", "CP")}
+                    </span>
+                  </div>
+                );
+              })}
 
             </div>
 
@@ -138,7 +246,7 @@ function Dashboard() {
                 Low
               </div>
 
-              <strong>35%</strong>
+              <strong>{lowPercentage}%</strong>
             </div>
 
             <div className="congestion-item">
@@ -147,7 +255,7 @@ function Dashboard() {
                 Moderate
               </div>
 
-              <strong>45%</strong>
+              <strong>{moderatePercentage}%</strong>
             </div>
 
             <div className="congestion-item">
@@ -156,7 +264,7 @@ function Dashboard() {
                 High
               </div>
 
-              <strong>20%</strong>
+              <strong>{highPercentage}%</strong>
             </div>
 
           </div>
@@ -166,59 +274,67 @@ function Dashboard() {
       </div>
 
 
-      {/* Recent journeys */}
+      {/* Recent Traffic */}
       <div className="dashboard-card recent-journeys">
 
         <div className="card-header">
           <div>
-            <span>RECENT ACTIVITY</span>
-            <h3>Recent Journeys</h3>
+            <span>LIVE TRAFFIC DATA</span>
+            <h3>Recent Traffic Conditions</h3>
           </div>
         </div>
 
         <div className="journey-table">
 
           <div className="journey-row journey-heading">
-            <span>Route</span>
+            <span>Location</span>
             <span>Congestion</span>
             <span>Delay</span>
             <span>Status</span>
           </div>
 
-          <div className="journey-row">
-            <span>New Delhi → North Delhi</span>
-            <span className="moderate-text">Moderate</span>
-            <span>+18 min</span>
-            <span className="status-good">Analyzed</span>
-          </div>
+          {latestByLocation.map((item) => {
+            const congestion = getCongestion(item);
+            const delay = getDelay(item);
 
-          <div className="journey-row">
-            <span>Noida → New Delhi</span>
-            <span className="high-text">High</span>
-            <span>+32 min</span>
-            <span className="status-good">Analyzed</span>
-          </div>
+            return (
+              <div
+                className="journey-row"
+                key={item.locationName}
+              >
+                <span>{item.locationName}</span>
 
-          <div className="journey-row">
-            <span>Ghaziabad → Noida</span>
-            <span className="low-text">Low</span>
-            <span>+5 min</span>
-            <span className="status-good">Analyzed</span>
-          </div>
+                <span
+                  className={
+                    congestion === "High"
+                      ? "high-text"
+                      : congestion === "Moderate"
+                      ? "moderate-text"
+                      : "low-text"
+                  }
+                >
+                  {congestion}
+                </span>
 
-          <div className="journey-row">
-            <span>Greater Noida → Delhi</span>
-            <span className="moderate-text">Moderate</span>
-            <span>+21 min</span>
-            <span className="status-good">Analyzed</span>
-          </div>
+                <span>
+                  {delay > 0 ? `+${delay} min` : "No delay"}
+                </span>
+
+                <span className="status-good">
+                  Live
+                </span>
+              </div>
+            );
+          })}
 
         </div>
 
       </div>
+
+
       <Link to="/" className="home-button">
-  ← Go to Home
-</Link>
+        ← Go to Home
+      </Link>
 
     </div>
   );

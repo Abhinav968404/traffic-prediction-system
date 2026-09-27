@@ -220,7 +220,13 @@ const ncrRegions = [
    SEARCHABLE LOCATION DROPDOWN
 ========================================================= */
 
-function LocationDropdown({ label, value, setValue, placeholder }) {
+function LocationDropdown({
+  label,
+  value,
+  setValue,
+  placeholder,
+  locations = [],
+}) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -243,9 +249,9 @@ function LocationDropdown({ label, value, setValue, placeholder }) {
     };
   }, []);
 
-  const filteredLocations = ncrRegions.filter((location) =>
-    location.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLocations = locations.filter((location) =>
+  location.toLowerCase().includes(search.toLowerCase())
+);
 
   const handleSelect = (location) => {
     setValue(location);
@@ -345,8 +351,27 @@ function Home() {
 
   const [period, setPeriod] = useState("AM");
   const [timeStep, setTimeStep] = useState("hour");
+  const [locations, setLocations] = useState([]);
 
   const navigate = useNavigate();
+  useEffect(() => {
+  fetch("http://localhost:3000/api/traffic/latest")
+    .then((res) => res.json())
+    .then((data) => {
+      const uniqueLocations = [
+        ...new Set(
+          (data.traffic || []).map(
+            (item) => item.locationName
+          )
+        ),
+      ];
+
+      setLocations(uniqueLocations);
+    })
+    .catch((error) => {
+      console.error("Failed to load locations:", error);
+    });
+}, []);
 
   const handlePredict = () => {
     if (!from || !to || !date || !time) {
@@ -501,6 +526,7 @@ function Home() {
                 value={from}
                 setValue={setFrom}
                 placeholder="Select starting location"
+                locations={locations}
               />
 
 
@@ -511,6 +537,7 @@ function Home() {
                 value={to}
                 setValue={setTo}
                 placeholder="Select destination"
+                locations={locations}
               />
 
 

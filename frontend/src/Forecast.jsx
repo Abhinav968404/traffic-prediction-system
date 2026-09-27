@@ -1,41 +1,127 @@
 import { useLocation, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 function Forecast() {
   const location = useLocation();
 
   const { from, to, date, time } = location.state || {};
 
-  
+  const [traffic, setTraffic] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:3000/api/traffic/latest")
+      .then((res) => res.json())
+      .then((data) => {
+        setTraffic(data.traffic || []);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Traffic API error:", error);
+        setLoading(false);
+      });
+  }, []);
+
+  // Find traffic data for selected locations
+  const fromData = traffic.find(
+    (item) =>
+      item.locationName.toLowerCase() ===
+      from?.toLowerCase()
+  );
+
+  const toData = traffic.find(
+    (item) =>
+      item.locationName.toLowerCase() ===
+      to?.toLowerCase()
+  );
+
+  // Use available selected-location data
+  const routeData = fromData || toData;
+
+  const getCongestion = (item) => {
+    if (!item) return "Unavailable";
+
+    const ratio =
+      item.currentSpeed / item.freeFlowSpeed;
+
+    if (ratio >= 0.85) return "Low";
+    if (ratio >= 0.6) return "Moderate";
+    return "High";
+  };
+
+  const getDelay = (item) => {
+    if (!item) return 0;
+
+    return Math.max(
+      0,
+      Math.round(
+        (item.currentTravelTime -
+          item.freeFlowTravelTime) /
+          60
+      )
+    );
+  };
+
+  const congestion = getCongestion(routeData);
+  const delay = getDelay(routeData);
+
+  const travelMinutes = routeData
+    ? Math.round(routeData.currentTravelTime / 60)
+    : 0;
+
+  const travelHours = Math.floor(travelMinutes / 60);
+  const remainingMinutes = travelMinutes % 60;
+
+  const travelTime =
+    travelHours > 0
+      ? `${travelHours}h ${remainingMinutes}m`
+      : `${remainingMinutes} min`;
+
+  if (loading) {
+    return (
+      <div className="app">
+        <main>
+          <section className="prediction-section">
+            <h2>Loading traffic forecast...</h2>
+          </section>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="app">
 
-      {/* NAVBAR */}
       <nav className="navbar">
 
         <div className="logo">
-  <span className="logo-icon">🚦</span>
+          <span className="logo-icon">🚦</span>
 
-  <div className="logo-brand">
-    <span className="logo-name">
-      Traff<span className="logo-highlight">IQ</span>
-    </span>
+          <div className="logo-brand">
+            <span className="logo-name">
+              Traff<span className="logo-highlight">IQ</span>
+            </span>
 
-    <span className="logo-tagline">
-      SMARTER JOURNEYS
-    </span>
-  </div>
-</div>
-        <div className="nav-links">
+            <span className="logo-tagline">
+              SMARTER JOURNEYS
+            </span>
+          </div>
         </div>
 
-        <button className="nav-button">
+        <div className="nav-links">
+          <Link to="/">Home</Link>
+        </div>
+
+        <Link
+          to="/dashboard"
+          className="nav-button"
+        >
           Dashboard
-        </button>
+        </Link>
 
       </nav>
 
 
-      {/* FORECAST PAGE */}
       <main>
 
         <section className="prediction-section">
@@ -51,25 +137,22 @@ function Forecast() {
               <h2>Traffic forecast</h2>
 
               <p>
-                Predicted conditions for your selected journey.
+                Real-time traffic conditions for your
+                selected journey.
               </p>
 
             </div>
 
             <div className="route-summary">
-
               <strong>{from}</strong>
-
               <span>→</span>
-
               <strong>{to}</strong>
-
             </div>
 
           </div>
 
 
-          {/* RESULT CARDS */}
+          {/* Prediction Cards */}
 
           <div className="prediction-cards">
 
@@ -83,10 +166,10 @@ function Forecast() {
 
                 <small>CONGESTION</small>
 
-                <h3>Moderate</h3>
+                <h3>{congestion}</h3>
 
                 <p className="prediction-green">
-                  Expected traffic level
+                  Based on live traffic speed
                 </p>
 
               </div>
@@ -102,12 +185,18 @@ function Forecast() {
 
               <div>
 
-                <small>ESTIMATED TRAVEL TIME</small>
+                <small>
+                  ESTIMATED TRAVEL TIME
+                </small>
 
-                <h3>2h 15m</h3>
+                <h3>
+                  {routeData
+                    ? travelTime
+                    : "Unavailable"}
+                </h3>
 
                 <p>
-                  Predicted journey duration
+                  Current traffic travel time
                 </p>
 
               </div>
@@ -123,12 +212,18 @@ function Forecast() {
 
               <div>
 
-                <small>EXPECTED DELAY</small>
+                <small>
+                  EXPECTED DELAY
+                </small>
 
-                <h3>+28 min</h3>
+                <h3>
+                  {routeData
+                    ? `+${delay} min`
+                    : "Unavailable"}
+                </h3>
 
                 <p>
-                  Compared with normal conditions
+                  Compared with free-flow conditions
                 </p>
 
               </div>
@@ -138,12 +233,9 @@ function Forecast() {
           </div>
 
 
-          {/* CHART + RECOMMENDATION */}
+          {/* Traffic Information */}
 
           <div className="prediction-grid">
-
-
-            {/* FORECAST CHART */}
 
             <div className="chart-card">
 
@@ -151,64 +243,70 @@ function Forecast() {
 
                 <div>
 
-                  <h3>Traffic Forecast</h3>
+                  <h3>Traffic Details</h3>
 
                   <p>
-                    Expected congestion throughout the day
+                    Current traffic conditions
                   </p>
 
                 </div>
 
                 <span className="chart-label">
-                  Next 12 hours
+                  Live data
                 </span>
 
               </div>
 
 
-              <div className="chart">
+              {routeData ? (
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns:
+                      "repeat(3, 1fr)",
+                    gap: "20px",
+                    marginTop: "25px"
+                  }}
+                >
 
-                <div className="chart-line">
+                  <div>
+                    <small>CURRENT SPEED</small>
 
-                  <span style={{ height: "35%" }}></span>
+                    <h3>
+                      {routeData.currentSpeed} km/h
+                    </h3>
+                  </div>
 
-                  <span style={{ height: "48%" }}></span>
+                  <div>
+                    <small>FREE-FLOW SPEED</small>
 
-                  <span style={{ height: "42%" }}></span>
+                    <h3>
+                      {routeData.freeFlowSpeed} km/h
+                    </h3>
+                  </div>
 
-                  <span style={{ height: "65%" }}></span>
+                  <div>
+                    <small>CONFIDENCE</small>
 
-                  <span style={{ height: "82%" }}></span>
-
-                  <span style={{ height: "72%" }}></span>
-
-                  <span style={{ height: "55%" }}></span>
-
-                  <span style={{ height: "43%" }}></span>
-
-                  <span style={{ height: "38%" }}></span>
+                    <h3>
+                      {Math.round(
+                        routeData.confidence * 100
+                      )}%
+                    </h3>
+                  </div>
 
                 </div>
-
-
-                <div className="chart-labels">
-
-                  <span>6 AM</span>
-                  <span>8 AM</span>
-                  <span>10 AM</span>
-                  <span>12 PM</span>
-                  <span>2 PM</span>
-                  <span>4 PM</span>
-                  <span>6 PM</span>
-
-                </div>
-
-              </div>
+              ) : (
+                <p style={{ marginTop: "30px" }}>
+                  Live traffic data is not currently
+                  available for this selected location.
+                </p>
+              )}
 
             </div>
 
 
-            {/* RECOMMENDATION */}
+            {/* Recommendation */}
 
             <div className="recommendation-card">
 
@@ -223,22 +321,26 @@ function Forecast() {
                 </small>
 
                 <h3>
-                  Consider leaving earlier
+                  {congestion === "High"
+                    ? "Consider leaving later or using an alternate route"
+                    : congestion === "Moderate"
+                    ? "Consider leaving a little earlier"
+                    : "Traffic conditions look good"}
                 </h3>
 
                 <p>
-                  Traffic is expected to increase around
-                  your selected departure time.
+                  Recommendation based on the
+                  current traffic conditions.
                 </p>
 
                 <div className="recommended-time">
 
                   <span>
-                    Recommended departure
+                    Departure
                   </span>
 
                   <strong>
-                    6:30 AM
+                    {time || "Not selected"}
                   </strong>
 
                 </div>
@@ -250,42 +352,37 @@ function Forecast() {
           </div>
 
 
-          {/* DISCLAIMER */}
-
           <div className="prediction-footer">
 
             <span>●</span>
 
-            Prediction generated using historical
-            traffic patterns. Live traffic data will
-            be integrated later.
+            Live traffic data retrieved from the
+            TraffIQ backend.
 
           </div>
 
 
-          {/* JOURNEY INFO */}
-
           <div className="prediction-footer">
 
-            📅 Departure date: {date}
+            📅 Departure date: {date || "Not selected"}
 
             &nbsp;&nbsp;
 
-            🕐 Departure time: {time}
+            🕐 Departure time: {time || "Not selected"}
 
           </div>
 
 
           <div className="another-journey-container">
 
-  <Link
-    to="/"
-    className="another-journey-button"
-  >
-    ← Plan another journey
-  </Link>
+            <Link
+              to="/"
+              className="another-journey-button"
+            >
+              ← Plan another journey
+            </Link>
 
-</div>
+          </div>
 
         </section>
 
