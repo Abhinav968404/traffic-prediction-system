@@ -2056,3 +2056,119 @@ input {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(34, 197, 94, 0.12);
 }
+
+/* =========================================
+   LOGOUT BUTTON
+========================================= */
+
+.logout-button {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: #cbd5e1;
+
+    padding: 10px 18px;
+
+    border-radius: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition: 0.2s ease;
+}
+
+.logout-button:hover {
+    background: rgba(255, 70, 70, 0.12);
+
+    border-color: rgba(255, 70, 70, 0.35);
+
+    color: #ff8585;
+}
+.user-name {
+    display: flex;
+    align-items: center;
+
+    padding: 10px 14px;
+
+    border-radius: 10px;
+
+    background: rgba(0, 217, 166, 0.08);
+
+    border: 1px solid rgba(0, 217, 166, 0.15);
+
+    color: #dbe7f3;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+.route-map-card {
+    width: 100%;
+    margin-bottom: 24px;
+    background: #101c2f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    overflow: hidden;
+}
+
+.route-map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px 18px;
+}
+
+.route-map-header h3 {
+    margin: 0 0 6px;
+}
+
+.route-map-header p {
+    margin: 0;
+}
+
+.route-map {
+    width: 100%;
+}
+
+.route-map .leaflet-container {
+    width: 100%;
+    height: 450px;
+}
+.custom-map-marker {
+    background: transparent;
+    border: none;
+}
+
+.route-marker {
+    width: 38px;
+    height: 38px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 16px;
+    color: white;
+    border: 3px solid white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+.route-marker::first-letter {
+    transform: rotate(45deg);
+}
+
+.start-marker {
+    background: #16c784;
+}
+
+.end-marker {
+    background: #ef4444;
+}
+
+.route-marker {
+    line-height: 38px;
+    text-align: center;
+}

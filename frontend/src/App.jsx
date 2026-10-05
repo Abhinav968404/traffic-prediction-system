@@ -4,13 +4,15 @@ import {
   Routes,
   Route,
   Link,
+  Navigate,
   useNavigate,
 } from "react-router-dom";
 
 import "./App.css";
 import Forecast from "./Forecast";
 import Dashboard from "./Dashboard";
-
+import Login from "./Login";
+import Register from "./Register";
 /* =========================================================
    DELHI NCR LOCATIONS
 ========================================================= */
@@ -340,6 +342,9 @@ function LocationDropdown({
 ========================================================= */
 
 function Home() {
+  const user = JSON.parse(
+  localStorage.getItem("user") || "null"
+);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
@@ -421,12 +426,30 @@ function Home() {
 
         </div>
 
-        <div className="nav-links">
-        </div>
+       <div className="nav-links">
 
-        <Link to="/dashboard" className="nav-button">
-  Dashboard
-</Link>
+  <Link to="/dashboard" className="nav-button">
+    Dashboard
+  </Link>
+
+  {user && (
+    <div className="user-name">
+      👤 {user.name}
+    </div>
+  )}
+
+  <button
+    className="logout-button"
+    onClick={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
+    }}
+  >
+    Logout
+  </button>
+
+</div>
 
       </nav>
 
@@ -935,7 +958,19 @@ function Home() {
     </div>
   );
 }
+/* =========================================================
+   PROTECTED ROUTE
+========================================================= */
 
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
 
 /* =========================================================
    APP ROUTER
@@ -948,14 +983,49 @@ function App() {
 
       <Routes>
 
-        <Route path="/" element={<Home />} />
-        <Route
-          path="/forecast"
-          element={<Forecast />}
-        />
-        <Route path="/dashboard" element={<Dashboard />} />
+    {/* PUBLIC ROUTES */}
 
-      </Routes>
+    <Route
+        path="/login"
+        element={<Login />}
+    />
+
+    <Route
+        path="/register"
+        element={<Register />}
+    />
+
+
+    {/* PROTECTED ROUTES */}
+
+    <Route
+        path="/"
+        element={
+            <ProtectedRoute>
+                <Home />
+            </ProtectedRoute>
+        }
+    />
+
+    <Route
+        path="/forecast"
+        element={
+            <ProtectedRoute>
+                <Forecast />
+            </ProtectedRoute>
+        }
+    />
+
+    <Route
+        path="/dashboard"
+        element={
+            <ProtectedRoute>
+                <Dashboard />
+            </ProtectedRoute>
+        }
+    />
+
+</Routes>
 
     </BrowserRouter>
   );
