@@ -253,27 +253,31 @@ function Forecast() {
       return "Moderate";
     }
 
+
     return "High";
   };
 
 
-  const congestion = getCongestion();
+  const congestion = getCongestion(routeData);
 
 
-  // ==========================================
-  // TRAVEL TIME
-  // ==========================================
-
-  const travelMinutes = routeData
-    ? routeData.travelTimeMinutes
+  // IMPORTANT:
+  // Delay now comes from the COMPLETE route,
+  // NOT from one road segment.
+  const delay = route
+    ? route.trafficDelayMinutes
     : 0;
 
-  const travelHours = Math.floor(
-    travelMinutes / 60
-  );
 
-  const remainingMinutes =
-    travelMinutes % 60;
+  // IMPORTANT:
+  // Travel time now comes from TomTom Routing API
+  const travelMinutes = route
+    ? route.travelTimeMinutes
+    : 0;
+
+
+  const travelHours = Math.floor(travelMinutes / 60);
+  const remainingMinutes = travelMinutes % 60;
 
   const travelTime =
     travelHours > 0
@@ -579,7 +583,7 @@ function Forecast() {
                 </h3>
 
                 <p>
-                  Current traffic route time
+                  TomTom route route time
                 </p>
 
               </div>
@@ -602,11 +606,11 @@ function Forecast() {
                 </small>
 
                 <h3>
-                  +{routeData.trafficDelayMinutes} min
+                  +{route.trafficDelayMinutes} min
                 </h3>
 
                 <p>
-                  Compared with free-flow conditions
+                  Traffic delay on the complete
                 </p>
 
               </div>
