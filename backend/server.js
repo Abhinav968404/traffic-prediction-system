@@ -1,5 +1,12 @@
 
+const { ACTIVE_LOCATIONS } = require("./config/locations");
+
 require("dotenv").config();
+const path = require("path");
+const { execFile } = require("child_process");
+const { promisify } = require("util");
+
+const execFileAsync = promisify(execFile);
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -399,14 +406,9 @@ app.get("/api/traffic/history", async (req, res) => {
 
 // We only provide place names.
 // TomTom will find the latitude and longitude.
-const locationNames = [
-    "Connaught Place, Delhi",
-    "India Gate, Delhi",
-    "Lajpat Nagar, Delhi",
-    "Saket, Delhi",
-    "Dwarka, Delhi",
-    "Rohini, Delhi"
-];
+const locationNames = ACTIVE_LOCATIONS.map(
+    location => location.name
+);
 
 let locations = [];
 
@@ -546,7 +548,11 @@ async function collectTrafficData() {
 app.get("/api/traffic/forecast", async (req, res) => {
     try {
 
-        const { location, horizon = 12 } = req.query;
+        const {
+            location,
+            horizon = 4,
+            model = "moving-average"
+        } = req.query;
 
         if (!location) {
             return res.status(400).json({
@@ -554,6 +560,53 @@ app.get("/api/traffic/forecast", async (req, res) => {
                 error: "Location is required"
             });
         }
+        // Use saved ARIMA/SARIMA models when requested.
+if (["arima", "sarima"].includes(model.toLowerCase())) {
+    const steps = Math.min(
+        24,
+        Math.max(1, Number(horizon) || 4)
+    );
+
+    try {
+        const scriptPath = path.resolve(
+            __dirname,
+            "../ml/predict.py"
+        );
+
+        const { stdout } = await execFileAsync(
+            "/opt/anaconda3/bin/python3",
+            [
+                scriptPath,
+                "--location",
+                location,
+                "--model",
+                model.toLowerCase(),
+                "--steps",
+                String(steps)
+            ],
+            { timeout: 30000 }
+        );
+
+        const result = JSON.parse(stdout);
+
+        return res.json({
+            success: true,
+            ...result,
+            intervalMinutes: null,
+            note: "Forecast steps represent future observations, not guaranteed 15-minute intervals."
+        });
+    } catch (error) {
+        console.error(
+            "ARIMA/SARIMA forecast failed:",
+            error.stderr || error.message
+        );
+
+        return res.status(500).json({
+            success: false,
+            error: "Unable to generate the requested model forecast. Check model availability and Python dependencies."
+        });
+    }
+}
 
         // Get historical traffic records
         const history = await Traffic.find({
@@ -1038,7 +1091,7 @@ mongoose.connect(process.env.MONGO_URI)
 
         // STEP 3:
         // Repeat every 5 minutes
-        setInterval(collectTrafficData, 5 * 60 * 1000);
+        setInterval(collectTrafficData, 15 * 60 * 1000);
 
         // STEP 4:
         // Start server

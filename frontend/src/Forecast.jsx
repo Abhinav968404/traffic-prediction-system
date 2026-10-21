@@ -155,6 +155,8 @@ function Forecast() {
   const [trafficData, setTrafficData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [mlForecast, setMlForecast] = useState(null);
+  const [forecastModel, setForecastModel] = useState("sarima");
 
   useEffect(() => {
     if (!from || !to) {
@@ -210,6 +212,34 @@ function Forecast() {
 
         setTrafficData(selectedTraffic || null);
 
+       
+        // Fetch ARIMA/SARIMA predictions
+        const modelLocation = from.toLowerCase().includes("connaught place")
+          ? "Connaught Place, Delhi"
+          : from;
+
+        try {
+          const mlResponse = await fetch(
+            `http://localhost:3000/api/traffic/forecast?location=${encodeURIComponent(
+              modelLocation
+            )}&model=${forecastModel}&horizon=4`
+          );
+
+          const mlResult = await mlResponse.json();
+
+          if (mlResponse.ok && mlResult.success) {
+            setMlForecast(mlResult);
+          } else {
+            setMlForecast(null);
+            console.error("ML forecast response:", mlResult);
+          }
+        } catch (mlError) {
+          console.error("ML forecast request failed:", mlError);
+          setMlForecast(null);
+        }
+
+
+
       } catch (error) {
         console.error("Forecast API error:", error);
 
@@ -222,7 +252,7 @@ function Forecast() {
     };
 
     fetchForecast();
-  }, [from, to]);
+  }, [from, to, forecastModel]);
 
 
   // ==========================================
@@ -264,20 +294,17 @@ function Forecast() {
   // IMPORTANT:
   // Delay now comes from the COMPLETE route,
   // NOT from one road segment.
-  const delay = route
-    ? route.trafficDelayMinutes
-    : 0;
+  const delay = routeData
+  ? routeData.trafficDelayMinutes ?? 0
+  : 0;
+
+const travelTimeMinutes = routeData
+  ? routeData.travelTimeMinutes ?? 0
+  : 0;
 
 
-  // IMPORTANT:
-  // Travel time now comes from TomTom Routing API
-  const travelMinutes = route
-    ? route.travelTimeMinutes
-    : 0;
-
-
-  const travelHours = Math.floor(travelMinutes / 60);
-  const remainingMinutes = travelMinutes % 60;
+const travelHours = Math.floor(travelTimeMinutes / 60);
+const remainingMinutes = travelTimeMinutes % 60;
 
   const travelTime =
     travelHours > 0
@@ -606,7 +633,7 @@ function Forecast() {
                 </small>
 
                 <h3>
-                  +{route.trafficDelayMinutes} min
+                  +{delay} min
                 </h3>
 
                 <p>
@@ -622,6 +649,53 @@ function Forecast() {
           {/* ====================================
     JOURNEY MAP
 ==================================== */}
+
+          {/* ARIMA / SARIMA ML FORECAST */}
+          <div className="chart-card" style={{ marginBottom: "24px" }}>
+            <div className="chart-header">
+              <div>
+                <h3>AI Traffic Speed Forecast</h3>
+                <p>Predictions from your trained time-series model</p>
+              </div>
+
+              <select
+                value={forecastModel}
+                onChange={(e) => setForecastModel(e.target.value)}
+                style={{ padding: "8px", borderRadius: "8px" }}
+              >
+                <option value="arima">ARIMA</option>
+                <option value="sarima">SARIMA</option>
+              </select>
+            </div>
+
+            {mlForecast ? (
+              <>
+                <p>
+                  Location: <strong>{mlForecast.location}</strong>
+                </p>
+
+                <div className="prediction-cards">
+                  {mlForecast.predictions.map((item) => (
+                    <div className="prediction-card" key={item.step}>
+                      <div>
+                        <small>FORECAST STEP {item.step}</small>
+                        <h3>{item.predictedSpeed} km/h</h3>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <p style={{ marginTop: "12px", fontSize: "12px" }}>
+                  Forecast steps represent future observations, not guaranteed
+                  15-minute intervals.
+                </p>
+              </>
+            ) : (
+              <p>
+                No ML forecast is available for this starting location yet.
+              </p>
+            )}
+          </div>
 
 <RouteMap
   routeData={routeData}
