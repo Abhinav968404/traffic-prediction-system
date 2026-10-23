@@ -1,0 +1,38 @@
+location,total_records,valid_speed_timestamp_records,unique_timestamps,enough_for_current_minimum
+"Saket, Delhi",108,108,108,True
+"Lajpat Nagar, Delhi",108,108,108,True
+"Rohini, Delhi",108,108,108,True
+"Dwarka, Delhi",108,108,108,True
+Khekra,107,107,107,True
+"Connaught Place, Delhi",106,106,106,True
+"India Gate, Delhi",106,106,106,True
+IGI Airport Terminal 3,62,62,62,True
+Anand Vihar ISBT,61,61,61,True
+New Delhi Railway Station,61,61,61,True
+Lajpat Nagar,61,61,61,True
+India Gate,61,61,61,True
+Nehru Place,61,61,61,True
+Connaught Place,61,61,61,True
+Chandni Chowk,61,61,61,True
+Dwarka,60,60,60,True
+Saket,60,60,60,True
+Meerut City Railway Station,59,59,59,True
+IFFCO Chowk,56,56,56,True
+Rajiv Chowk Gurugram,56,56,56,True
+Noida Sector 62,56,56,56,True
+Noida Sector 18,56,56,56,True
+Knowledge Park II Greater Noida,56,56,56,True
+Noida Expressway,56,56,56,True
+Pari Chowk Greater Noida,56,56,56,True
+Faridabad Railway Station,55,55,55,True
+Cyber City Gurugram,55,55,55,True
+Shaheed Sthal New Bus Adda,54,54,54,True
+Neelam Chowk Faridabad,54,54,54,True
+Badkhal Faridabad,54,54,54,True
+Greater Noida West,54,54,54,True
+Begum Bridge Meerut,54,54,54,True
+Baraut,53,53,53,True
+Baghpat Bus Stand,53,53,53,True
+Indirapuram Ghaziabad,52,52,52,True
+Delhi Road Meerut,50,50,50,True
+Kaushambi Ghaziabad,49,49,49,True
