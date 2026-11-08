@@ -181,6 +181,7 @@ function Forecast() {
         );
 
         const routeResult = await routeResponse.json();
+        console.log("ROUTE API RESPONSE:", routeResult);
 
         if (!routeResponse.ok || !routeResult.success) {
           throw new Error(
@@ -189,6 +190,19 @@ function Forecast() {
         }
 
         setRouteData(routeResult.route);
+        console.log("Selected FROM:", from);
+console.log("Selected TO:", to);
+console.log("TomTom route response:", routeResult.route);
+console.log(
+  "Route start point:",
+  routeResult.route?.points?.[0]
+);
+console.log(
+  "Route end point:",
+  routeResult.route?.points?.[
+    routeResult.route?.points?.length - 1
+  ]
+);
 
 
         // ==========================================
@@ -214,9 +228,7 @@ function Forecast() {
 
        
         // Fetch ARIMA/SARIMA predictions
-        const modelLocation = from.toLowerCase().includes("connaught place")
-          ? "Connaught Place, Delhi"
-          : from;
+        const modelLocation = from;
 
         try {
           const mlResponse = await fetch(

@@ -13,213 +13,9 @@ import Forecast from "./Forecast";
 import Dashboard from "./Dashboard";
 import Login from "./Login";
 import Register from "./Register";
-/* =========================================================
-   DELHI NCR LOCATIONS
-========================================================= */
-
-const ncrRegions = [
-  // DELHI
-  "Delhi",
-  "New Delhi",
-  "North Delhi",
-  "North East Delhi",
-  "North West Delhi",
-  "West Delhi",
-  "South West Delhi",
-  "South Delhi",
-  "South East Delhi",
-  "Central Delhi",
-  "East Delhi",
-  "Shahdara",
-
-  // GHAZIABAD
-  "Ghaziabad",
-  "Indirapuram",
-  "Vaishali",
-  "Vasundhara",
-  "Kaushambi",
-  "Crossings Republik",
-  "Raj Nagar",
-  "Raj Nagar Extension",
-  "Kavi Nagar",
-  "Loni",
-  "Muradnagar",
-  "Modinagar",
-
-  // NOIDA / GREATER NOIDA
-  "Noida",
-  "Greater Noida",
-  "Noida Extension",
-  "Noida Sector 15",
-  "Noida Sector 18",
-  "Noida Sector 20",
-  "Noida Sector 22",
-  "Noida Sector 27",
-  "Noida Sector 37",
-  "Noida Sector 44",
-  "Noida Sector 50",
-  "Noida Sector 51",
-  "Noida Sector 52",
-  "Noida Sector 61",
-  "Noida Sector 62",
-  "Noida Sector 63",
-  "Noida Sector 71",
-  "Noida Sector 74",
-  "Noida Sector 75",
-  "Noida Sector 76",
-  "Noida Sector 78",
-  "Noida Sector 79",
-  "Noida Sector 93",
-  "Noida Sector 94",
-  "Noida Sector 100",
-  "Noida Sector 104",
-  "Noida Sector 110",
-  "Noida Sector 119",
-  "Noida Sector 121",
-  "Noida Sector 125",
-  "Noida Sector 128",
-  "Noida Sector 137",
-  "Noida Sector 142",
-  "Noida Sector 143",
-  "Noida Sector 144",
-  "Noida Sector 150",
-  "Noida Sector 152",
-  "Noida Sector 168",
-  "Knowledge Park",
-  "Pari Chowk",
-  "Techzone",
-  "Yamuna Expressway",
-
-  // GURUGRAM
-  "Gurugram",
-  "Gurgaon",
-  "Cyber City",
-  "MG Road Gurugram",
-  "Golf Course Road",
-  "Golf Course Extension Road",
-  "Sohna Road",
-  "Dwarka Expressway",
-  "Manesar",
-  "Udyog Vihar",
-  "DLF Phase 1",
-  "DLF Phase 2",
-  "DLF Phase 3",
-  "DLF Phase 4",
-  "DLF Phase 5",
-
-  // FARIDABAD
-  "Faridabad",
-  "Ballabhgarh",
-  "NIT Faridabad",
-  "Old Faridabad",
-  "Sector 15 Faridabad",
-  "Sector 16 Faridabad",
-  "Sector 21 Faridabad",
-  "Greater Faridabad",
-
-  // SONIPAT
-  "Sonipat",
-  "Murthal",
-  "Kundli",
-  "Ganaur",
-  "Rai",
-  "Barhi",
-
-  // PANIPAT
-  "Panipat",
-  "Samalkha",
-
-  // ROHTAK
-  "Rohtak",
-  "Meham",
-  "Sampla",
-
-  // JHAJJAR
-  "Jhajjar",
-  "Bahadurgarh",
-  "Badli",
-
-  // REWARI
-  "Rewari",
-  "Dharuhera",
-  "Bawal",
-
-  // PALWAL
-  "Palwal",
-  "Hodal",
-
-  // MEERUT
-  "Meerut",
-  "Meerut Cantt",
-  "Modipuram",
-  "Daurala",
-  "Mawana",
-  "Sardhana",
-
-  // BAGHPAT
-  "Baghpat",
-  "Baraut",
-  "Khekra",
-
-  // HAPUR
-  "Hapur",
-  "Pilkhuwa",
-  "Garhmukteshwar",
-
-  // BULANDSHAHR
-  "Bulandshahr",
-  "Khurja",
-  "Sikandrabad",
-  "Jahangirabad",
-
-  // MUZAFFARNAGAR
-  "Muzaffarnagar",
-  "Budhana",
-  "Khatauli",
-
-  // SHAMLI
-  "Shamli",
-  "Kairana",
-  "Thanabhawan",
-
-  // NUH
-  "Nuh",
-  "Tauru",
-  "Firozpur Jhirka",
-
-  // JIND
-  "Jind",
-  "Narwana",
-  "Safidon",
-
-  // KARNAL
-  "Karnal",
-  "Gharaunda",
-  "Taraori",
-
-  // BHIWANI
-  "Bhiwani",
-  "Loharu",
-
-  // CHARKHI DADRI
-  "Charkhi Dadri",
-
-  // MAHENDRAGARH
-  "Narnaul",
-  "Mahendragarh",
-
-  // RAJASTHAN NCR
-  "Alwar",
-  "Bhiwadi",
-  "Neemrana",
-  "Behror",
-  "Khairthal",
-  "Tijara",
-  "Bharatpur",
-];
 
 /* =========================================================
-   SEARCHABLE LOCATION DROPDOWN
+   BACKEND-POWERED LOCATION SEARCH
 ========================================================= */
 
 function LocationDropdown({
@@ -227,10 +23,12 @@ function LocationDropdown({
   value,
   setValue,
   placeholder,
-  locations = [],
 }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const dropdownRef = useRef(null);
 
@@ -251,15 +49,82 @@ function LocationDropdown({
     };
   }, []);
 
-  const filteredLocations = locations.filter((location) =>
-  location.toLowerCase().includes(search.toLowerCase())
-);
+  // Search locations through backend
 
+  // Search only locations supported by trained ML models
+  useEffect(() => {
+    const query = search.trim().toLowerCase();
+
+    if (!open) {
+      setResults([]);
+      setError("");
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const fetchModelLocations = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(
+          "http://localhost:3000/api/traffic/model-locations"
+        );
+
+        const data = await response.json();
+
+        if (!response.ok || !Array.isArray(data.locations)) {
+  throw new Error(
+    data.error || "Failed to load trained locations"
+  );
+}
+
+        if (cancelled) return;
+
+        const locations = (data.locations || []).map((name) => ({
+          name,
+        }));
+
+        const filteredLocations = locations.filter((location) =>
+          location.name
+            .replaceAll("_", " ")
+            .toLowerCase()
+            .includes(query)
+        );
+
+        setResults(filteredLocations);
+
+      } catch (err) {
+        if (!cancelled) {
+          console.error("Model location search error:", err);
+          setResults([]);
+          setError("Unable to load trained model locations.");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchModelLocations();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [search, open]);
+
+
+  
   const handleSelect = (location) => {
-    setValue(location);
+    setValue(location.name);
     setSearch("");
+    setResults([]);
     setOpen(false);
   };
+
 
   return (
     <div className="input-group location-group" ref={dropdownRef}>
@@ -274,7 +139,11 @@ function LocationDropdown({
         <span>📍</span>
 
         {!open ? (
-          <div className={`location-value ${!value ? "placeholder" : ""}`}>
+          <div
+            className={`location-value ${
+              !value ? "placeholder" : ""
+            }`}
+          >
             {value || placeholder}
           </div>
         ) : (
@@ -282,13 +151,17 @@ function LocationDropdown({
             autoFocus
             type="text"
             value={search}
-            placeholder={value || "Search NCR location..."}
+            placeholder="Search location..."
             onChange={(e) => setSearch(e.target.value)}
             onClick={(e) => e.stopPropagation()}
           />
         )}
 
-        <span className={`dropdown-arrow ${open ? "arrow-up" : ""}`}>
+        <span
+          className={`dropdown-arrow ${
+            open ? "arrow-up" : ""
+          }`}
+        >
           ▼
         </span>
       </div>
@@ -309,25 +182,35 @@ function LocationDropdown({
           </div>
 
           <div className="location-results">
-            {filteredLocations.length > 0 ? (
-              filteredLocations.map((location) => (
+            {loading ? (
+              <div className="no-results">
+                Searching locations...
+              </div>
+            ) : error ? (
+              <div className="no-results">
+                {error}
+              </div>
+            ) : results.length > 0 ? (
+              results.map((location, index) => (
                 <button
                   type="button"
-                  key={location}
-                  className={`location-option ${
-                    value === location ? "selected-location" : ""
-                  }`}
+key={`${location.name}-${index}`}                  className="location-option"
                   onClick={() => handleSelect(location)}
                 >
                   <span>📍</span>
-                  <span>{location}</span>
 
-                  {value === location && <span>✓</span>}
+                  <span>{location.name}</span>
+
+                  {value === location.name && (
+                    <span>✓</span>
+                  )}
                 </button>
               ))
             ) : (
               <div className="no-results">
-                No NCR location found
+                {search.trim().length < 2
+                  ? "Type at least 2 characters"
+                  : "No locations found"}
               </div>
             )}
           </div>
@@ -336,6 +219,7 @@ function LocationDropdown({
     </div>
   );
 }
+
 
 /* =========================================================
    HOME PAGE
@@ -348,6 +232,22 @@ function Home() {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
+  const today = new Date();
+
+const minDate = [
+  today.getFullYear(),
+  String(today.getMonth() + 1).padStart(2, "0"),
+  String(today.getDate()).padStart(2, "0"),
+].join("-");
+
+const nextWeek = new Date(today);
+nextWeek.setDate(today.getDate() + 7);
+
+const maxDate = [
+  nextWeek.getFullYear(),
+  String(nextWeek.getMonth() + 1).padStart(2, "0"),
+  String(nextWeek.getDate()).padStart(2, "0"),
+].join("-");
   const [time, setTime] = useState("");
   const [showTimePicker, setShowTimePicker] = useState(false);
 
@@ -356,27 +256,10 @@ function Home() {
 
   const [period, setPeriod] = useState("AM");
   const [timeStep, setTimeStep] = useState("hour");
-  const [locations, setLocations] = useState([]);
+  
 
   const navigate = useNavigate();
-  useEffect(() => {
-  fetch("http://localhost:3000/api/traffic/latest")
-    .then((res) => res.json())
-    .then((data) => {
-      const uniqueLocations = [
-        ...new Set(
-          (data.traffic || []).map(
-            (item) => item.locationName
-          )
-        ),
-      ];
-
-      setLocations(uniqueLocations);
-    })
-    .catch((error) => {
-      console.error("Failed to load locations:", error);
-    });
-}, []);
+  
 
   const handlePredict = () => {
     if (!from || !to || !date || !time) {
@@ -545,23 +428,21 @@ function Home() {
               {/* FROM */}
 
               <LocationDropdown
-                label="FROM"
-                value={from}
-                setValue={setFrom}
-                placeholder="Select starting location"
-                locations={locations}
-              />
+  label="FROM"
+  value={from}
+  setValue={setFrom}
+  placeholder="Select starting location"
+/>
 
 
               {/* TO */}
 
               <LocationDropdown
-                label="TO"
-                value={to}
-                setValue={setTo}
-                placeholder="Select destination"
-                locations={locations}
-              />
+  label="TO"
+  value={to}
+  setValue={setTo}
+  placeholder="Select destination"
+/>
 
 
               {/* DATE */}
@@ -575,10 +456,12 @@ function Home() {
                   <span>📅</span>
 
                   <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
+  type="date"
+  value={date}
+  min={minDate}
+  max={maxDate}
+  onChange={(e) => setDate(e.target.value)}
+/>
 
                 </div>
 

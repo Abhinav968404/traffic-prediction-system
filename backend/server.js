@@ -1,4 +1,3 @@
-
 const { ACTIVE_LOCATIONS } = require("./config/locations");
 
 require("dotenv").config();
@@ -223,7 +222,6 @@ app.get("/api/traffic/route", async (req, res) => {
         const trafficSummary = trafficRoute.summary;
         const routePoints =
         trafficRoute.legs?.[0]?.points || [];
-    
 
 
         // ==========================================
@@ -302,21 +300,21 @@ app.get("/api/traffic/route", async (req, res) => {
 
             route: {
 
-    distanceKm: Number(
-        (
-            trafficSummary.lengthInMeters / 1000
-        ).toFixed(1)
-    ),
+                distanceKm: Number(
+                    (
+                        trafficSummary.lengthInMeters / 1000
+                    ).toFixed(1)
+                ),
 
-    travelTimeMinutes,
+                travelTimeMinutes,
 
-    freeFlowTimeMinutes,
+                freeFlowTimeMinutes,
 
-    trafficDelayMinutes,
+                trafficDelayMinutes,
 
-    points: routePoints
+                points: routePoints
 
-}
+            }
 
         });
 
@@ -397,9 +395,6 @@ app.get("/api/traffic/history", async (req, res) => {
         });
     }
 });
-
-
-
 // ==========================================
 // AUTOMATIC TRAFFIC DATA COLLECTION
 // ==========================================
@@ -417,40 +412,99 @@ let locations = [];
 // ------------------------------------------
 
 async function getCoordinates(placeName) {
+    const normalize = (value) => String(value || "")
+        .replace(/_/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    const originalName = normalize(placeName);
+    if (!originalName) return null;
+
+    // Model location identifiers are often underscored; add NCR context
+    // to improve TomTom's search precision without hardcoding coordinates.
+    const queryCandidates = [
+        `${originalName}, Delhi NCR, India`,
+        `${originalName}, India`,
+        originalName
+    ];
+
+    const normalizeTokens = (value) => normalize(value)
+        .toLowerCase()
+        .replace(/[^a-z0-9 ]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean);
+
+    const wanted = normalizeTokens(originalName);
+    let best = null;
+    let bestScore = -1;
+
     try {
-        const response = await axios.get(
-            "https://api.tomtom.com/search/2/search/" +
-            encodeURIComponent(placeName) +
-            ".json",
-            {
-                params: {
-                    key: process.env.TOMTOM_API_KEY,
-                    limit: 1,
-                    countrySet: "IN"
+        for (const query of [...new Set(queryCandidates)]) {
+            const response = await axios.get(
+                `https://api.tomtom.com/search/2/search/${encodeURIComponent(query)}.json`,
+                {
+                    params: {
+                        key: process.env.TOMTOM_API_KEY,
+                        limit: 10,
+                        countrySet: "IN",
+                        language: "en-US"
+                    },
+                    timeout: 15000
+                }
+            );
+
+            const results = response.data?.results || [];
+            for (const result of results) {
+                const address = result.address || {};
+                const fields = [
+                    result.poi?.name,
+                    address.freeformAddress,
+                    address.municipality,
+                    address.municipalitySubdivision,
+                    address.streetName,
+                    address.countrySubdivision
+                ].filter(Boolean).join(" ");
+
+                const candidateTokens = new Set(normalizeTokens(fields));
+                const overlap = wanted.filter(token => candidateTokens.has(token)).length;
+                const coverage = wanted.length ? overlap / wanted.length : 0;
+                const poiName = normalizeTokens(result.poi?.name || "");
+                const poiOverlap = wanted.filter(token => poiName.includes(token)).length;
+                const poiCoverage = wanted.length ? poiOverlap / wanted.length : 0;
+                const score = coverage * 0.65 + poiCoverage * 0.35;
+
+                // Prefer results in Delhi / Haryana / Uttar Pradesh (NCR area).
+                const region = normalize(`${address.countrySubdivision || ""} ${address.municipality || ""}`).toLowerCase();
+                const ncrBonus = /delhi|haryana|uttar pradesh|noida|gurugram|ghaziabad|faridabad/.test(region) ? 0.08 : 0;
+                const finalScore = Math.min(1, score + ncrBonus);
+
+                if (result.position && finalScore > bestScore) {
+                    bestScore = finalScore;
+                    best = {
+                        name: originalName,
+                        latitude: result.position.lat,
+                        longitude: result.position.lon,
+                        resolvedName: address.freeformAddress || result.poi?.name || originalName,
+                        confidence: Number(finalScore.toFixed(3))
+                    };
                 }
             }
-        );
 
-        const results = response.data.results;
-
-        if (!results || results.length === 0) {
-            throw new Error(`Location not found: ${placeName}`);
+            // Stop once a strong result is found; otherwise try the next query form.
+            if (bestScore >= 0.78) break;
         }
 
-        const result = results[0];
+        if (!best || bestScore < 0.45) {
+            console.warn(`Could not confidently resolve location: ${originalName} (score: ${bestScore})`);
+            return null;
+        }
 
-        return {
-            name: placeName,
-            latitude: result.position.lat,
-            longitude: result.position.lon
-        };
-
+        return best;
     } catch (error) {
         console.error(
-            `Failed to find coordinates for ${placeName}:`,
+            `Failed to find coordinates for ${originalName}:`,
             error.response?.data || error.message
         );
-
         return null;
     }
 }
@@ -541,6 +595,7 @@ async function collectTrafficData() {
         }
     }
 }
+
 // ==========================================
 // TIME SERIES TRAFFIC FORECAST
 // ==========================================
@@ -560,53 +615,54 @@ app.get("/api/traffic/forecast", async (req, res) => {
                 error: "Location is required"
             });
         }
+
         // Use saved ARIMA/SARIMA models when requested.
-if (["arima", "sarima"].includes(model.toLowerCase())) {
-    const steps = Math.min(
-        24,
-        Math.max(1, Number(horizon) || 4)
-    );
+        if (["arima", "sarima"].includes(model.toLowerCase())) {
+            const steps = Math.min(
+                24,
+                Math.max(1, Number(horizon) || 4)
+            );
 
-    try {
-        const scriptPath = path.resolve(
-            __dirname,
-            "../ml/predict.py"
-        );
+            try {
+                const scriptPath = path.resolve(
+                    __dirname,
+                    "../ml/predict.py"
+                );
 
-        const { stdout } = await execFileAsync(
-            "/opt/anaconda3/bin/python3",
-            [
-                scriptPath,
-                "--location",
-                location,
-                "--model",
-                model.toLowerCase(),
-                "--steps",
-                String(steps)
-            ],
-            { timeout: 30000 }
-        );
+                const { stdout } = await execFileAsync(
+                    "/opt/anaconda3/bin/python3",
+                    [
+                        scriptPath,
+                        "--location",
+                        location,
+                        "--model",
+                        model.toLowerCase(),
+                        "--steps",
+                        String(steps)
+                    ],
+                    { timeout: 30000 }
+                );
 
-        const result = JSON.parse(stdout);
+                const result = JSON.parse(stdout);
 
-        return res.json({
-            success: true,
-            ...result,
-            intervalMinutes: null,
-            note: "Forecast steps represent future observations, not guaranteed 15-minute intervals."
-        });
-    } catch (error) {
-        console.error(
-            "ARIMA/SARIMA forecast failed:",
-            error.stderr || error.message
-        );
+                return res.json({
+                    success: true,
+                    ...result,
+                    intervalMinutes: null,
+                    note: "Forecast steps represent future observations, not guaranteed 15-minute intervals."
+                });
+            } catch (error) {
+                console.error(
+                    "ARIMA/SARIMA forecast failed:",
+                    error.stderr || error.message
+                );
 
-        return res.status(500).json({
-            success: false,
-            error: "Unable to generate the requested model forecast. Check model availability and Python dependencies."
-        });
-    }
-}
+                return res.status(500).json({
+                    success: false,
+                    error: "Unable to generate the requested model forecast. Check model availability and Python dependencies."
+                });
+            }
+        }
 
         // Get historical traffic records
         const history = await Traffic.find({
@@ -625,166 +681,159 @@ if (["arima", "sarima"].includes(model.toLowerCase())) {
         // Reverse so data is oldest → newest
         history.reverse();
 
-        // ------------------------------------------
         // Prepare time-series data
-        // ------------------------------------------
-
-      // ------------------------------------------
-// Prepare time-series data
-// ------------------------------------------
-
-const speeds = history.map(
-    item => Number(item.currentSpeed)
-);
-
-const lastRecord = history[history.length - 1];
-
-const lastTimestamp = new Date(
-    lastRecord.timestamp
-);
-
-// ------------------------------------------
-// WEIGHTED MOVING AVERAGE
-// ------------------------------------------
-
-// Give more importance to recent observations
-const recentCount = Math.min(12, speeds.length);
-
-const recentSpeeds = speeds.slice(
-    -recentCount
-);
-
-let weightedSum = 0;
-let weightTotal = 0;
-
-recentSpeeds.forEach((speed, index) => {
-
-    const weight = index + 1;
-
-    weightedSum += speed * weight;
-
-    weightTotal += weight;
-});
-
-let basePrediction =
-    weightedSum / weightTotal;
-
-
-// ------------------------------------------
-// RECENT TREND
-// ------------------------------------------
-
-// Compare recent traffic with older traffic
-const previousWindow =
-    speeds.slice(
-        -(recentCount * 2),
-        -recentCount
-    );
-
-let trend = 0;
-
-if (previousWindow.length > 0) {
-
-    const previousAverage =
-        previousWindow.reduce(
-            (sum, value) => sum + value,
-            0
-        ) / previousWindow.length;
-
-    const recentAverage =
-        recentSpeeds.reduce(
-            (sum, value) => sum + value,
-            0
-        ) / recentSpeeds.length;
-
-    trend =
-        (recentAverage - previousAverage) /
-        recentCount;
-}
-
-
-// ------------------------------------------
-// GENERATE FORECAST
-// ------------------------------------------
-
-const forecastCount =
-    Math.min(Number(horizon), 12);
-
-const predictions = [];
-
-for (
-    let i = 1;
-    i <= forecastCount;
-    i++
-) {
-
-    let predictedSpeed =
-        basePrediction + trend * i;
-
-    // Keep prediction realistic
-    predictedSpeed = Math.max(
-        5,
-        Math.min(
-            predictedSpeed,
-            Number(lastRecord.freeFlowSpeed)
-        )
-    );
-
-    const futureTime =
-        new Date(lastTimestamp);
-
-    futureTime.setMinutes(
-        futureTime.getMinutes() + i * 5
-    );
-
-    predictions.push({
-
-        timestamp: futureTime,
-
-        predictedSpeed: Number(
-            predictedSpeed.toFixed(1)
-        )
-
-    });
-}
-        // ------------------------------------------
-        // Send response
-        // ------------------------------------------
-
-        res.json({
-
-            success: true,
-
-            location: location,
-
-            model: "Weighted Moving Average + Trend",
-
-            intervalMinutes: 5,
-
-            historical: history.map(item => ({
-                timestamp: item.timestamp,
-                speed: item.currentSpeed,
-                freeFlowSpeed: item.freeFlowSpeed
-            })),
-
-            predictions
-
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Forecast error:",
-            error.message
+        const speeds = history.map(
+            item => Number(item.currentSpeed)
         );
 
-        res.status(500).json({
-            success: false,
-            error: "Failed to generate traffic forecast"
+        const lastRecord = history[history.length - 1];
+
+        const lastTimestamp = new Date(
+            lastRecord.timestamp
+        );
+
+        // ------------------------------------------
+        // WEIGHTED MOVING AVERAGE
+        // ------------------------------------------
+
+        // Give more importance to recent observations
+        const recentCount = Math.min(12, speeds.length);
+
+        const recentSpeeds = speeds.slice(
+            -recentCount
+        );
+
+        let weightedSum = 0;
+        let weightTotal = 0;
+
+        recentSpeeds.forEach((speed, index) => {
+
+            const weight = index + 1;
+
+            weightedSum += speed * weight;
+
+            weightTotal += weight;
         });
 
-    }
+        let basePrediction =
+            weightedSum / weightTotal;
+
+        // ------------------------------------------
+        // RECENT TREND
+        // ------------------------------------------
+
+        // Compare recent traffic with older traffic
+        const previousWindow =
+            speeds.slice(
+                -(recentCount * 2),
+                -recentCount
+            );
+
+        let trend = 0;
+
+        if (previousWindow.length > 0) {
+
+            const previousAverage =
+                previousWindow.reduce(
+                    (sum, value) => sum + value,
+                    0
+                ) / previousWindow.length;
+
+            const recentAverage =
+                recentSpeeds.reduce(
+                    (sum, value) => sum + value,
+                    0
+                ) / recentSpeeds.length;
+
+            trend =
+                (recentAverage - previousAverage) /
+                recentCount;
+        }
+
+        // ------------------------------------------
+        // GENERATE FORECAST
+        // ------------------------------------------
+
+        const forecastCount =
+            Math.min(Number(horizon), 12);
+
+        const predictions = [];
+
+        for (
+            let i = 1;
+            i <= forecastCount;
+            i++
+        ) {
+
+            let predictedSpeed =
+                basePrediction + trend * i;
+
+            // Keep prediction realistic
+            predictedSpeed = Math.max(
+                5,
+                Math.min(
+                    predictedSpeed,
+                    Number(lastRecord.freeFlowSpeed)
+                )
+            );
+
+            const futureTime =
+                new Date(lastTimestamp);
+
+            futureTime.setMinutes(
+                futureTime.getMinutes() + i * 5
+            );
+
+            predictions.push({
+                timestamp: futureTime,
+
+predictedSpeed: Number(
+    predictedSpeed.toFixed(1)
+)
+
 });
+}
+
+// ------------------------------------------
+// Send response
+// ------------------------------------------
+
+res.json({
+
+    success: true,
+
+    location: location,
+
+    model: "Weighted Moving Average + Trend",
+
+    intervalMinutes: 5,
+
+    historical: history.map(item => ({
+        timestamp: item.timestamp,
+        speed: item.currentSpeed,
+        freeFlowSpeed: item.freeFlowSpeed
+    })),
+
+    predictions
+
+});
+
+} catch (error) {
+
+    console.error(
+        "Forecast error:",
+        error.message
+    );
+
+    res.status(500).json({
+        success: false,
+        error: "Failed to generate traffic forecast"
+    });
+
+}
+
+});
+
 // ==========================================
 // TIME SERIES MODEL EVALUATION
 // ==========================================
@@ -802,10 +851,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             });
         }
 
-        // ------------------------------------------
         // Get historical data
-        // ------------------------------------------
-
         const history = await Traffic.find({
             locationName: location
         })
@@ -823,10 +869,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             item => Number(item.currentSpeed)
         );
 
-        // ------------------------------------------
         // Train / Test split
-        // ------------------------------------------
-
         const trainSize = Math.floor(
             speeds.length * 0.8
         );
@@ -837,11 +880,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
         const testData =
             speeds.slice(trainSize);
 
-        // ------------------------------------------
         // Generate predictions
-        // using Weighted Moving Average + Trend
-        // ------------------------------------------
-
         const predictions = [];
 
         let workingData = [...trainData];
@@ -855,7 +894,6 @@ app.get("/api/traffic/evaluate", async (req, res) => {
                 workingData.slice(-recentCount);
 
             // Weighted Moving Average
-
             let weightedSum = 0;
             let weightTotal = 0;
 
@@ -875,7 +913,6 @@ app.get("/api/traffic/evaluate", async (req, res) => {
                 weightedSum / weightTotal;
 
             // Recent trend
-
             const previousWindow =
                 workingData.slice(
                     -(recentCount * 2),
@@ -907,11 +944,9 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             }
 
             let predictedSpeed =
-                basePrediction +
-                trend;
+                basePrediction + trend;
 
             // Keep prediction realistic
-
             const maxSpeed =
                 Number(
                     history[0].freeFlowSpeed
@@ -929,19 +964,13 @@ app.get("/api/traffic/evaluate", async (req, res) => {
                 predictedSpeed
             );
 
-            // Add actual value so the
-            // next prediction can use
-            // newly observed data
-
+            // Add actual value for next prediction
             workingData.push(
                 testData[i]
             );
         }
 
-        // ------------------------------------------
         // MAE
-        // ------------------------------------------
-
         let absoluteError = 0;
 
         for (let i = 0; i < testData.length; i++) {
@@ -956,10 +985,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             absoluteError /
             testData.length;
 
-        // ------------------------------------------
         // RMSE
-        // ------------------------------------------
-
         let squaredError = 0;
 
         for (let i = 0; i < testData.length; i++) {
@@ -978,10 +1004,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
                 testData.length
             );
 
-        // ------------------------------------------
         // MAPE
-        // ------------------------------------------
-
         let percentageError = 0;
 
         for (let i = 0; i < testData.length; i++) {
@@ -1001,10 +1024,7 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             (percentageError /
                 testData.length) * 100;
 
-        // ------------------------------------------
         // Send result
-        // ------------------------------------------
-
         res.json({
 
             success: true,
@@ -1071,32 +1091,91 @@ app.get("/api/traffic/evaluate", async (req, res) => {
 
 });
 
-// ===============================
+// ==========================================
+// TRAINED MODEL LOCATIONS (from predict.py)
+// ==========================================
+
+app.get("/api/traffic/model-locations", async (req, res) => {
+
+    try {
+
+        const pythonExecutable =
+            process.env.PYTHON_EXECUTABLE || "python3";
+
+        const scriptPath = path.resolve(
+            __dirname,
+            "../ml/predict.py"
+        );
+
+        const { stdout } = await execFileAsync(
+            pythonExecutable,
+            [scriptPath, "--list-locations"],
+            {
+                timeout: 30000,
+                maxBuffer: 1024 * 1024
+            }
+        );
+
+        const parsed = JSON.parse(
+            stdout.trim()
+        );
+
+        if (!Array.isArray(parsed.locations)) {
+            throw new Error(
+                "predict.py response has no locations array"
+            );
+        }
+
+        res.json({
+            success: true,
+            locations: parsed.locations
+        });
+
+    } catch (error) {
+
+        console.error(
+            "Model locations error:",
+            error.stderr || error.message
+        );
+
+        res.status(500).json({
+            success: false,
+            error: "Unable to load trained model locations"
+        });
+
+    }
+
+});
+
+// ==========================================
 // MONGODB CONNECTION
-// ===============================
+// ==========================================
 
 mongoose.connect(process.env.MONGO_URI)
 
     .then(async () => {
 
-        console.log("MongoDB connected successfully!");
+        console.log(
+            "MongoDB connected successfully!"
+        );
 
-        // STEP 1:
-        // Convert all place names into latitude/longitude
+        // STEP 1: Resolve location coordinates
         await initializeLocations();
 
-        // STEP 2:
-        // Collect traffic data for all locations
+        // STEP 2: Collect traffic data
         await collectTrafficData();
 
-        // STEP 3:
-        // Repeat every 5 minutes
-        setInterval(collectTrafficData, 15 * 60 * 1000);
+        // STEP 3: Repeat traffic collection
+        setInterval(
+            collectTrafficData,
+            15 * 60 * 1000
+        );
 
-        // STEP 4:
-        // Start server
+        // STEP 4: Start server
         app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
+            console.log(
+                `Server running on http://localhost:${PORT}`
+            );
         });
 
     })
@@ -1110,9 +1189,9 @@ mongoose.connect(process.env.MONGO_URI)
 
     });
 
-// ===============================
+// ==========================================
 // HOME ROUTE
-// ===============================
+// ==========================================
 
 app.get("/", (req, res) => {
 
