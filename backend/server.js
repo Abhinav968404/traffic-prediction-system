@@ -1,3 +1,4 @@
+const fs = require("fs/promises");
 const { ACTIVE_LOCATIONS } = require("./config/locations");
 
 require("dotenv").config();
@@ -616,8 +617,11 @@ app.get("/api/traffic/forecast", async (req, res) => {
             });
         }
 
+
+
+
         // Use saved ARIMA/SARIMA models when requested.
-        if (["arima", "sarima"].includes(model.toLowerCase())) {
+        if (["arima", "sarima", "xgboost"].includes(model.toLowerCase())) {
             const steps = Math.min(
                 24,
                 Math.max(1, Number(horizon) || 4)
@@ -629,8 +633,11 @@ app.get("/api/traffic/forecast", async (req, res) => {
                     "../ml/predict.py"
                 );
 
+                const pythonExecutable =
+                    process.env.PYTHON_EXECUTABLE || "python3";
+
                 const { stdout } = await execFileAsync(
-                    "/opt/anaconda3/bin/python3",
+                    pythonExecutable,
                     [
                         scriptPath,
                         "--location",
@@ -648,8 +655,11 @@ app.get("/api/traffic/forecast", async (req, res) => {
                 return res.json({
                     success: true,
                     ...result,
-                    intervalMinutes: null,
-                    note: "Forecast steps represent future observations, not guaranteed 15-minute intervals."
+                    intervalMinutes:
+                        model.toLowerCase() === "xgboost" ? 15 : null,
+                    note: model.toLowerCase() === "xgboost"
+                        ? "XGBoost forecasts use 15-minute future intervals."
+                        : "Forecast steps represent future observations, not guaranteed 15-minute intervals."
                 });
             } catch (error) {
                 console.error(
@@ -838,11 +848,11 @@ res.json({
 // TIME SERIES MODEL EVALUATION
 // ==========================================
 
+
 app.get("/api/traffic/evaluate", async (req, res) => {
-
     try {
-
         const { location } = req.query;
+        const modelType = (req.query.model || "arima").toLowerCase();
 
         if (!location) {
             return res.status(400).json({
@@ -851,300 +861,184 @@ app.get("/api/traffic/evaluate", async (req, res) => {
             });
         }
 
-        // Get historical data
-        const history = await Traffic.find({
-            locationName: location
-        })
-        .sort({ timestamp: 1 })
-        .limit(100);
-
-        if (history.length < 15) {
+        if (!["arima", "sarima", "xgboost"].includes(modelType)) {
             return res.status(400).json({
                 success: false,
-                error: "Not enough historical data for evaluation"
+                error: "Model must be arima, sarima or xgboost"
             });
         }
 
-        const speeds = history.map(
-            item => Number(item.currentSpeed)
+        const csvPath = path.resolve(
+            __dirname,
+            "../ml/evaluation_predictions.csv"
         );
 
-        // Train / Test split
-        const trainSize = Math.floor(
-            speeds.length * 0.8
-        );
+        const csvText = await fs.readFile(csvPath, "utf8");
+        const lines = csvText.trim().split(/\r?\n/);
 
-        const trainData =
-            speeds.slice(0, trainSize);
+        if (lines.length < 2) {
+            return res.status(404).json({
+                success: false,
+                error: "Evaluation CSV contains no predictions"
+            });
+        }
 
-        const testData =
-            speeds.slice(trainSize);
+        // Parse CSV while preserving commas inside quoted fields.
+        function parseCsvLine(line) {
+            const fields = [];
+            let field = "";
+            let quoted = false;
 
-        // Generate predictions
-        const predictions = [];
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
 
-        let workingData = [...trainData];
-
-        for (let i = 0; i < testData.length; i++) {
-
-            const recentCount =
-                Math.min(12, workingData.length);
-
-            const recentSpeeds =
-                workingData.slice(-recentCount);
-
-            // Weighted Moving Average
-            let weightedSum = 0;
-            let weightTotal = 0;
-
-            recentSpeeds.forEach(
-                (speed, index) => {
-
-                    const weight = index + 1;
-
-                    weightedSum +=
-                        speed * weight;
-
-                    weightTotal += weight;
+                if (char === '"') {
+                    if (quoted && line[i + 1] === '"') {
+                        field += '"';
+                        i++;
+                    } else {
+                        quoted = !quoted;
+                    }
+                } else if (char === "," && !quoted) {
+                    fields.push(field);
+                    field = "";
+                } else {
+                    field += char;
                 }
-            );
-
-            let basePrediction =
-                weightedSum / weightTotal;
-
-            // Recent trend
-            const previousWindow =
-                workingData.slice(
-                    -(recentCount * 2),
-                    -recentCount
-                );
-
-            let trend = 0;
-
-            if (previousWindow.length > 0) {
-
-                const previousAverage =
-                    previousWindow.reduce(
-                        (sum, value) =>
-                            sum + value,
-                        0
-                    ) / previousWindow.length;
-
-                const recentAverage =
-                    recentSpeeds.reduce(
-                        (sum, value) =>
-                            sum + value,
-                        0
-                    ) / recentSpeeds.length;
-
-                trend =
-                    (recentAverage -
-                        previousAverage) /
-                    recentCount;
             }
 
-            let predictedSpeed =
-                basePrediction + trend;
+            fields.push(field);
+            return fields;
+        }
 
-            // Keep prediction realistic
-            const maxSpeed =
-                Number(
-                    history[0].freeFlowSpeed
+        const headers = parseCsvLine(lines[0]).map(h => h.trim());
+
+        const required = [
+            "location",
+            "model",
+            "timestamp",
+            "actualSpeed",
+            "predictedSpeed",
+            "absoluteError"
+        ];
+
+        const missing = required.filter(h => !headers.includes(h));
+
+        if (missing.length) {
+            return res.status(500).json({
+                success: false,
+                error: `CSV missing columns: ${missing.join(", ")}`
+            });
+        }
+
+        const rows = lines.slice(1)
+            .filter(line => line.trim())
+            .map(line => {
+                const values = parseCsvLine(line);
+                return Object.fromEntries(
+                    headers.map((header, index) => [
+                        header,
+                        values[index]
+                    ])
                 );
+            });
 
-            predictedSpeed = Math.max(
-                5,
-                Math.min(
-                    predictedSpeed,
-                    maxSpeed
-                )
-            );
+        const modelRows = rows.filter(row => {
+            const rowModel = row.model.toLowerCase();
 
-            predictions.push(
-                predictedSpeed
-            );
+            return row.location === location &&
+                (
+                    modelType === "arima"
+                    ? rowModel.includes("arima") &&
+                        !rowModel.includes("sarima")
+                    : modelType === "sarima"
+                        ? rowModel.includes("sarima")
+                        : rowModel.trim() === "xgboost"
+                );
+        }).map(row => ({
+            timestamp: row.timestamp,
+            actual: Number(row.actualSpeed),
+            predicted: Number(row.predictedSpeed),
+            absoluteError: Number(row.absoluteError)
+        })).filter(row =>
+            Number.isFinite(row.actual) &&
+            Number.isFinite(row.predicted) &&
+            Number.isFinite(row.absoluteError) &&
+            !Number.isNaN(Date.parse(row.timestamp))
+        ).sort((a, b) =>
+            new Date(a.timestamp) - new Date(b.timestamp)
+        );
 
-            // Add actual value for next prediction
-            workingData.push(
-                testData[i]
-            );
+        if (modelRows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: `No ${modelType.toUpperCase()} evaluation data found for ${location}`
+            });
         }
 
-        // MAE
-        let absoluteError = 0;
+        const count = modelRows.length;
 
-        for (let i = 0; i < testData.length; i++) {
+        const mae = modelRows.reduce(
+            (sum, row) => sum + Math.abs(row.actual - row.predicted),
+            0
+        ) / count;
 
-            absoluteError += Math.abs(
-                testData[i] -
-                predictions[i]
-            );
-        }
+        const rmse = Math.sqrt(
+            modelRows.reduce(
+                (sum, row) => sum + Math.pow(row.actual - row.predicted, 2),
+                0
+            ) / count
+        );
 
-        const mae =
-            absoluteError /
-            testData.length;
+        const nonZeroActual = modelRows.filter(row => row.actual !== 0);
 
-        // RMSE
-        let squaredError = 0;
+        const mape = nonZeroActual.length
+            ? nonZeroActual.reduce(
+                (sum, row) =>
+                    sum + Math.abs(
+                        (row.actual - row.predicted) / row.actual
+                    ),
+                0
+            ) / nonZeroActual.length * 100
+            : null;
 
-        for (let i = 0; i < testData.length; i++) {
-
-            const error =
-                testData[i] -
-                predictions[i];
-
-            squaredError +=
-                error * error;
-        }
-
-        const rmse =
-            Math.sqrt(
-                squaredError /
-                testData.length
-            );
-
-        // MAPE
-        let percentageError = 0;
-
-        for (let i = 0; i < testData.length; i++) {
-
-            if (testData[i] !== 0) {
-
-                percentageError +=
-                    Math.abs(
-                        (testData[i] -
-                            predictions[i]) /
-                        testData[i]
-                    );
-            }
-        }
-
-        const mape =
-            (percentageError /
-                testData.length) * 100;
-
-        // Send result
         res.json({
-
             success: true,
-
-            location: location,
-
-            model:
-                "Weighted Moving Average + Trend",
-
-            trainingSamples:
-                trainData.length,
-
-            testingSamples:
-                testData.length,
-
+            location,
+            model: modelType.toUpperCase(),
+            testingSamples: count,
             metrics: {
-
-                MAE: Number(
-                    mae.toFixed(2)
-                ),
-
-                RMSE: Number(
-                    rmse.toFixed(2)
-                ),
-
-                MAPE: Number(
-                    mape.toFixed(2)
-                )
-
+                MAE: Number(mae.toFixed(3)),
+                RMSE: Number(rmse.toFixed(3)),
+                MAPE: mape === null ? null : Number(mape.toFixed(2))
             },
-
-            comparison:
-                testData.map(
-                    (actual, index) => ({
-                        actual: actual,
-
-                        predicted:
-                            Number(
-                                predictions[index]
-                                    .toFixed(2)
-                            )
-                    })
-                )
-
+            comparison: modelRows
         });
 
     } catch (error) {
-
-        console.error(
-            "Model evaluation error:",
-            error.message
-        );
+        console.error("Model evaluation error:", error.message);
 
         res.status(500).json({
-
             success: false,
-
-            error:
-                "Failed to evaluate forecasting model"
-
+            error: "Failed to load model evaluation data"
         });
-
     }
-
 });
+
 
 // ==========================================
 // TRAINED MODEL LOCATIONS (from predict.py)
 // ==========================================
 
-app.get("/api/traffic/model-locations", async (req, res) => {
+// ==========================================
+// FIXED NCR MODEL LOCATIONS
+// ==========================================
 
-    try {
-
-        const pythonExecutable =
-            process.env.PYTHON_EXECUTABLE || "python3";
-
-        const scriptPath = path.resolve(
-            __dirname,
-            "../ml/predict.py"
-        );
-
-        const { stdout } = await execFileAsync(
-            pythonExecutable,
-            [scriptPath, "--list-locations"],
-            {
-                timeout: 30000,
-                maxBuffer: 1024 * 1024
-            }
-        );
-
-        const parsed = JSON.parse(
-            stdout.trim()
-        );
-
-        if (!Array.isArray(parsed.locations)) {
-            throw new Error(
-                "predict.py response has no locations array"
-            );
-        }
-
-        res.json({
-            success: true,
-            locations: parsed.locations
-        });
-
-    } catch (error) {
-
-        console.error(
-            "Model locations error:",
-            error.stderr || error.message
-        );
-
-        res.status(500).json({
-            success: false,
-            error: "Unable to load trained model locations"
-        });
-
-    }
-
+app.get("/api/traffic/model-locations", (req, res) => {
+    res.json({
+        success: true,
+        locations: ACTIVE_LOCATIONS
+    });
 });
 
 // ==========================================

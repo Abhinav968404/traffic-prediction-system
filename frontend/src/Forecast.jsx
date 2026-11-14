@@ -1,3 +1,12 @@
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import {
@@ -157,6 +166,14 @@ function Forecast() {
   const [error, setError] = useState("");
   const [mlForecast, setMlForecast] = useState(null);
   const [forecastModel, setForecastModel] = useState("sarima");
+  const predictionChartData = (mlForecast?.predictions || []).map(
+  (item, index) => ({
+    date: item.timestamp
+      ? new Date(item.timestamp).toLocaleString()
+      : `Observation ${index + 1}`,
+    speed: Number(item.predictedSpeed),
+  })
+);
 
   useEffect(() => {
     if (!from || !to) {
@@ -677,6 +694,8 @@ const remainingMinutes = travelTimeMinutes % 60;
               >
                 <option value="arima">ARIMA</option>
                 <option value="sarima">SARIMA</option>
+                <option value="xgboost">XGBoost</option>
+                
               </select>
             </div>
 
@@ -687,14 +706,50 @@ const remainingMinutes = travelTimeMinutes % 60;
                 </p>
 
                 <div className="prediction-cards">
-                  {mlForecast.predictions.map((item) => (
+                  {mlForecast.predictions.map((item, index) => (
                     <div className="prediction-card" key={item.step}>
                       <div>
-                        <small>FORECAST STEP {item.step}</small>
+                        <small>
+                          {[
+                            "Next Observation",
+                             "Observation +2",
+                            "Observation +3",
+                            "Observation +4"
+                            ][index] || `Observation +${index + 1}`}
+                        </small>
                         <h3>{item.predictedSpeed} km/h</h3>
                       </div>
                     </div>
                   ))}
+                </div>
+                <div className="chart-card" style={{ marginTop: "24px" }}>
+                  <h3>Predicted Traffic Speed by Forecast Date</h3>
+                  <p>Location: {mlForecast.location}</p>
+
+                  <div style={{ width: "100%", height: 320 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={predictionChartData}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="date" />
+                        <YAxis
+                          label={{
+                            value: "Speed (km/h)",
+                            angle: -90,
+                            position: "insideLeft",
+                          }}
+                        />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="speed"
+                          name="Predicted speed"
+                          stroke="#38bdf8"
+                          strokeWidth={3}
+                          dot={{ r: 5 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
 
                 <p style={{ marginTop: "12px", fontSize: "12px" }}>

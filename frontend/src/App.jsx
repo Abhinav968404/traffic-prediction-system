@@ -52,69 +52,70 @@ function LocationDropdown({
   // Search locations through backend
 
   // Search only locations supported by trained ML models
-  useEffect(() => {
+  
+// Search locations through the TomTom backend API
+// Search only fixed, supported NCR locations
+useEffect(() => {
     const query = search.trim().toLowerCase();
 
-    if (!open) {
-      setResults([]);
-      setError("");
-      setLoading(false);
-      return;
+    if (!open || query.length < 2) {
+        setResults([]);
+        setError("");
+        setLoading(false);
+        return;
     }
 
     let cancelled = false;
 
-    const fetchModelLocations = async () => {
-      try {
-        setLoading(true);
-        setError("");
+    const fetchLocations = async () => {
+        try {
+            setLoading(true);
+            setError("");
 
-        const response = await fetch(
-          "http://localhost:3000/api/traffic/model-locations"
-        );
+            const response = await fetch(
+                "http://localhost:3000/api/traffic/model-locations"
+            );
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (!response.ok || !Array.isArray(data.locations)) {
-  throw new Error(
-    data.error || "Failed to load trained locations"
-  );
-}
+            if (!response.ok) {
+                throw new Error(data.error || "Location loading failed");
+            }
 
-        if (cancelled) return;
+            if (cancelled) return;
 
-        const locations = (data.locations || []).map((name) => ({
-          name,
-        }));
+            const filtered = (data.locations || [])
+                .map(location =>
+                    typeof location === "string"
+                        ? { name: location }
+                        : location
+                )
+                .filter(location =>
+                  typeof location?.name === "string" &&
+                  location.name.toLowerCase().includes(query)
+                );
 
-        const filteredLocations = locations.filter((location) =>
-          location.name
-            .replaceAll("_", " ")
-            .toLowerCase()
-            .includes(query)
-        );
+        setResults(filtered);
 
-        setResults(filteredLocations);
-
-      } catch (err) {
-        if (!cancelled) {
-          console.error("Model location search error:", err);
-          setResults([]);
-          setError("Unable to load trained model locations.");
+        } catch (err) {
+            if (!cancelled) {
+                console.error("Location loading error:", err);
+                setResults([]);
+                setError(err.message || "Unable to load locations.");
+            }
+        } finally {
+            if (!cancelled) {
+                setLoading(false);
+            }
         }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
     };
 
-    fetchModelLocations();
+    fetchLocations();
 
     return () => {
-      cancelled = true;
+        cancelled = true;
     };
-  }, [search, open]);
+}, [search, open]);
 
 
   

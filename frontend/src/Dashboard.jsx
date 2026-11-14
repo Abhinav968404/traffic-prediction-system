@@ -33,6 +33,7 @@ const numberOrDash = (value, digits = 0) =>
 function Dashboard() {
   const [traffic, setTraffic] = useState([]);
   const [history, setHistory] = useState([]);
+  const [evaluationModel, setEvaluationModel] = useState("arima");
   const [forecast, setForecast] = useState([]);
   const [selectedLocation, setSelectedLocation] = useState("");
   const [analysisType, setAnalysisType] = useState("trend");
@@ -107,9 +108,11 @@ function Dashboard() {
 
     let active = true;
 
-    const query = `?location=${encodeURIComponent(selectedLocation)}`;
+    const locationQuery = `?location=${encodeURIComponent(selectedLocation)}`;
+    const forecastQuery = `${locationQuery}&model=arima`;
+    const evaluationQuery = `${locationQuery}&model=${evaluationModel}`;
 
-    fetch(`${API}/history${query}`)
+    fetch(`${API}/history${locationQuery}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("History request failed");
@@ -132,7 +135,7 @@ function Dashboard() {
         console.error("History API error:", err);
       });
 
-    fetch(`${API}/forecast${query}`)
+    fetch(`${API}/forecast${forecastQuery}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Forecast request failed");
@@ -175,7 +178,7 @@ function Dashboard() {
 
     setEvaluationLoading(true);
 
-    fetch(`${API}/evaluate${query}`)
+    fetch(`${API}/evaluate${evaluationQuery}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Evaluation request failed");
@@ -203,7 +206,7 @@ function Dashboard() {
     return () => {
       active = false;
     };
-  }, [selectedLocation]);
+  }, [selectedLocation,evaluationModel]);
 
   const getCongestion = (item) => {
     const current = Number(item.currentSpeed);
@@ -357,6 +360,15 @@ const chartData = useMemo(() => {
         : null,
   }));
 }, [history, forecast, analysisType]);
+const evaluationChartData = useMemo(() => {
+    return (evaluation?.comparison || []).map((item, index) => ({
+        testPoint: index + 1,
+        timestamp: item.timestamp,
+        actual: Number(item.actual),
+        predicted: Number(item.predicted),
+        absoluteError: Number(item.absoluteError),
+    }));
+}, [evaluation]);
 
 
   const distributionTotal =
@@ -804,20 +816,141 @@ const chartData = useMemo(() => {
               >
                 {selectedCongestion} traffic
               </span>
+          
+      </div>
+    </article>
 
-              <span>in selected area</span>
-            </div>
-          </article>
-        </section>
+      
+{/* ARIMA / SARIMA MODEL EVALUATION */}
 
-        {/* Traffic by location table */}
+<div className="dashboard-card">
+  <div className="card-header">
+    <div>
+      <span>MODEL PERFORMANCE</span>
+      <h3>Traffic Forecast Evaluation</h3>
+      <p>Test-set predictions compared with observed traffic speed</p>
+    </div>
 
-        <section className="dashboard-panel location-panel">
-          <div className="panel-heading location-heading">
-            <div>
-              <span className="panel-eyebrow">
-                LIVE MONITOR
-              </span>
+    <select
+      className="location-select"
+      value={evaluationModel}
+      onChange={(e) => setEvaluationModel(e.target.value)}
+    >
+      <option value="arima">ARIMA</option>
+      <option value="sarima">SARIMA</option>
+      <option value="xgboost">XGBoost</option>
+    </select>
+  </div>
+
+  {evaluationLoading ? (
+    <p>Loading evaluation...</p>
+  ) : evaluation?.success ? (
+    <>
+      <p>
+        Model: {evaluation.model} · Test observations:{" "}
+        {evaluation.testingSamples}
+      </p>
+
+      <div className="dashboard-stats">
+        <div className="stat-card">
+          <div>
+            <span>MAE (km/h)</span>
+            <h2>{evaluation.metrics.MAE}</h2>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div>
+            <span>RMSE (km/h)</span>
+            <h2>{evaluation.metrics.RMSE}</h2>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div>
+            <span>MAPE (%)</span>
+            <h2>
+              {evaluation.metrics.MAPE == null
+                ? "N/A"
+                : `${evaluation.metrics.MAPE}%`}
+            </h2>
+          </div>
+        </div>
+      </div>
+
+      <h4>Actual vs Predicted Speed</h4>
+      <div style={{ width: "100%", height: 320 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={evaluationChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="testPoint" hide />
+            <YAxis label={{
+              value: "Speed (km/h)",
+              angle: -90,
+              position: "insideLeft",
+            }} />
+            <Tooltip />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="actual"
+              name="Actual Speed"
+              stroke="#2563eb"
+              dot={false}
+            />
+            <Line
+              type="monotone"
+              dataKey="predicted"
+              name="Predicted Speed"
+              stroke="#f59e0b"
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+
+      <h4>Absolute Prediction Error Over Time</h4>
+      <div style={{ width: "100%", height: 260 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={evaluationChartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="testPoint" hide />
+            <YAxis label={{
+              value: "Error (km/h)",
+              angle: -90,
+              position: "insideLeft",
+            }} />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="absoluteError"
+              name="Absolute Error"
+              stroke="#dc2626"
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </>
+  ) : (
+    <p>
+      {evaluation?.error ||
+        "No evaluation data available for this location and model."}
+    </p>
+  )}
+</div>
+
+      {/* Recent Traffic */}
+
+      <div className="dashboard-card recent-journeys">
+
+        <div className="card-header">
+
+          <div>
+
+            <span>
+              LIVE TRAFFIC DATA
+            </span>
 
               <h2>Traffic by location</h2>
 
@@ -919,6 +1052,7 @@ const chartData = useMemo(() => {
                 )}
               </tbody>
             </table>
+          </div>
           </div>
         </section>
 
