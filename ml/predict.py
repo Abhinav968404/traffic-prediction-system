@@ -109,7 +109,7 @@ def get_recent_history(location, window=WINDOW):
         location_pattern = (
             "^" + re.escape(
                 normalize_location(location)
-            ).replace("_", r"[_\\s-]+") + "$"
+            ).replace("_", r"[_\s-]+") + "$"
         )
 
         records = list(
