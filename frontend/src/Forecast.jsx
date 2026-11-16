@@ -705,6 +705,76 @@ const remainingMinutes = travelTimeMinutes % 60;
                   Location: <strong>{mlForecast.location}</strong>
                 </p>
 
+
+{forecastModel === "xgboost" && mlForecast.modelSelection && (
+  <div
+    className="chart-card"
+    style={{ marginTop: "16px", marginBottom: "20px" }}
+  >
+    <div className="chart-header">
+      <div>
+        <h3>XGBoost Model Information</h3>
+        <p>Model selected for this location</p>
+      </div>
+
+      <span
+        style={{
+          padding: "7px 12px",
+          borderRadius: "20px",
+          background:
+            mlForecast.modelSelection.selectedModel === "tuned"
+              ? "rgba(34,197,94,0.15)"
+              : "rgba(148,163,184,0.15)",
+          color:
+            mlForecast.modelSelection.selectedModel === "tuned"
+              ? "#4ade80"
+              : "#cbd5e1",
+          fontSize: "13px",
+          fontWeight: "600"
+        }}
+      >
+        {mlForecast.modelSelection.modelLabel}
+      </span>
+    </div>
+
+    <p>
+      The system automatically selects the better-performing
+      model for <strong>{mlForecast.location}</strong>.
+    </p>
+
+    <div className="prediction-cards">
+      <div className="prediction-card">
+        <div>
+          <small>BASELINE MAE</small>
+          <h3>{mlForecast.modelSelection.baselineMAE.toFixed(3)}</h3>
+        </div>
+      </div>
+
+      <div className="prediction-card">
+        <div>
+          <small>TUNED MAE</small>
+          <h3>{mlForecast.modelSelection.tunedMAE.toFixed(3)}</h3>
+        </div>
+      </div>
+
+      <div className="prediction-card">
+        <div>
+          <small>BASELINE RMSE</small>
+          <h3>{mlForecast.modelSelection.baselineRMSE.toFixed(3)}</h3>
+        </div>
+      </div>
+
+      <div className="prediction-card">
+        <div>
+          <small>TUNED RMSE</small>
+          <h3>{mlForecast.modelSelection.tunedRMSE.toFixed(3)}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
                 <div className="prediction-cards">
                   {mlForecast.predictions.map((item, index) => (
                     <div className="prediction-card" key={item.step}>

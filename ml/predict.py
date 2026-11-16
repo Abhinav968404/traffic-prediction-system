@@ -75,6 +75,47 @@ def find_model(location, model_type):
     return joblib.load(candidates[0])
 
 
+def find_xgboost_model(location):
+    """
+    Load the selected baseline or tuned XGBoost model.
+    Selection is based on xgboost_model_selection.json.
+    """
+
+    selection_file = (
+        MODEL_DIR.parent / "xgboost_model_selection.json"
+    )
+
+    if not selection_file.exists():
+        raise FileNotFoundError(
+            "XGBoost selection file missing. "
+            "Run ml/select_xgboost_models.py first."
+        )
+
+    with open(selection_file, "r") as file:
+        selections = json.load(file)
+
+    selected = selections.get(location)
+
+    if selected is None:
+        raise ValueError(
+            f"No XGBoost selection found for '{location}'."
+        )
+
+    if selected["selected_model"] == "tuned":
+        model_file = selected["model_file"]
+
+        model_path = MODEL_DIR / "tuned" / model_file
+
+        if not model_path.exists():
+            raise FileNotFoundError(
+                f"Selected tuned model not found: {model_path}"
+            )
+
+        return joblib.load(model_path)
+
+    return find_model(location, "xgboost")
+
+
 def make_features(history, timestamp):
     """Must match the feature construction used during training."""
 
@@ -106,11 +147,15 @@ def get_recent_history(location, window=WINDOW):
 
         collection = client[DB_NAME][COLLECTION_NAME]
 
-        location_pattern = (
-            "^" + re.escape(
-                normalize_location(location)
-            ).replace("_", r"[_\s-]+") + "$"
-        )
+        separator = r"[^a-z0-9]+"
+
+        tokens = [
+            re.escape(token)
+            for token in re.split(separator, location.lower())
+            if token
+        ]
+
+        location_pattern = "^" + separator.join(tokens) + "$"
 
         records = list(
             collection.find(
@@ -159,7 +204,7 @@ def get_recent_history(location, window=WINDOW):
     return history, last_timestamp
 
 def predict_xgboost(location, steps):
-    model = find_model(location, "xgboost")
+    model = find_xgboost_model(location)
 
     history, last_timestamp = get_recent_history(location)
 

@@ -1,0 +1,298 @@
+{
+    "Anand Vihar ISBT": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 3.165,
+        "baseline_rmse": 3.378,
+        "tuned_mae": 4.605,
+        "tuned_rmse": 5.477
+    },
+    "Badkhal Faridabad": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 2.914,
+        "baseline_rmse": 3.206,
+        "tuned_mae": 3.229,
+        "tuned_rmse": 3.396
+    },
+    "Baghpat Bus Stand": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 10.778,
+        "baseline_rmse": 13.735,
+        "tuned_mae": 10.796,
+        "tuned_rmse": 13.75
+    },
+    "Baraut": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 8.07,
+        "baseline_rmse": 9.816,
+        "tuned_mae": 8.191,
+        "tuned_rmse": 9.939
+    },
+    "Begum Bridge Meerut": {
+        "selected_model": "tuned",
+        "model_file": "Begum_Bridge_Meerut_xgboost_tuned.joblib",
+        "baseline_mae": 5.378,
+        "baseline_rmse": 6.441,
+        "tuned_mae": 4.786,
+        "tuned_rmse": 5.798
+    },
+    "Chandni Chowk": {
+        "selected_model": "tuned",
+        "model_file": "Chandni_Chowk_xgboost_tuned.joblib",
+        "baseline_mae": 21.587,
+        "baseline_rmse": 28.303,
+        "tuned_mae": 21.542,
+        "tuned_rmse": 28.26
+    },
+    "Connaught Place": {
+        "selected_model": "tuned",
+        "model_file": "Connaught_Place_xgboost_tuned.joblib",
+        "baseline_mae": 4.638,
+        "baseline_rmse": 5.382,
+        "tuned_mae": 4.097,
+        "tuned_rmse": 4.814
+    },
+    "Connaught Place, Delhi": {
+        "selected_model": "tuned",
+        "model_file": "Connaught_Place__Delhi_xgboost_tuned.joblib",
+        "baseline_mae": 5.905,
+        "baseline_rmse": 7.132,
+        "tuned_mae": 5.743,
+        "tuned_rmse": 7.022
+    },
+    "Cyber City Gurugram": {
+        "selected_model": "tuned",
+        "model_file": "Cyber_City_Gurugram_xgboost_tuned.joblib",
+        "baseline_mae": 3.577,
+        "baseline_rmse": 4.327,
+        "tuned_mae": 3.243,
+        "tuned_rmse": 4.222
+    },
+    "Delhi Road Meerut": {
+        "selected_model": "tuned",
+        "model_file": "Delhi_Road_Meerut_xgboost_tuned.joblib",
+        "baseline_mae": 3.92,
+        "baseline_rmse": 5.201,
+        "tuned_mae": 3.78,
+        "tuned_rmse": 4.942
+    },
+    "Dwarka": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 11.396,
+        "baseline_rmse": 15.96,
+        "tuned_mae": 16.238,
+        "tuned_rmse": 21.211
+    },
+    "Dwarka, Delhi": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 1.719,
+        "baseline_rmse": 2.773,
+        "tuned_mae": 1.781,
+        "tuned_rmse": 2.646
+    },
+    "Faridabad Railway Station": {
+        "selected_model": "tuned",
+        "model_file": "Faridabad_Railway_Station_xgboost_tuned.joblib",
+        "baseline_mae": 3.848,
+        "baseline_rmse": 4.762,
+        "tuned_mae": 3.783,
+        "tuned_rmse": 4.754
+    },
+    "Greater Noida West": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 8.169,
+        "baseline_rmse": 9.658,
+        "tuned_mae": 8.571,
+        "tuned_rmse": 10.015
+    },
+    "IFFCO Chowk": {
+        "selected_model": "tuned",
+        "model_file": "IFFCO_Chowk_xgboost_tuned.joblib",
+        "baseline_mae": 18.33,
+        "baseline_rmse": 22.616,
+        "tuned_mae": 18.285,
+        "tuned_rmse": 22.174
+    },
+    "IGI Airport Terminal 3": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 19.39,
+        "baseline_rmse": 21.754,
+        "tuned_mae": 19.553,
+        "tuned_rmse": 21.834
+    },
+    "India Gate": {
+        "selected_model": "tuned",
+        "model_file": "India_Gate_xgboost_tuned.joblib",
+        "baseline_mae": 4.582,
+        "baseline_rmse": 6.308,
+        "tuned_mae": 4.364,
+        "tuned_rmse": 6.105
+    },
+    "India Gate, Delhi": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 0.802,
+        "baseline_rmse": 1.592,
+        "tuned_mae": 0.802,
+        "tuned_rmse": 1.592
+    },
+    "Indirapuram Ghaziabad": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 3.794,
+        "baseline_rmse": 4.601,
+        "tuned_mae": 4.66,
+        "tuned_rmse": 5.422
+    },
+    "Kaushambi Ghaziabad": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 8.439,
+        "baseline_rmse": 9.913,
+        "tuned_mae": 8.78,
+        "tuned_rmse": 10.257
+    },
+    "Khekra": {
+        "selected_model": "tuned",
+        "model_file": "Khekra_xgboost_tuned.joblib",
+        "baseline_mae": 4.111,
+        "baseline_rmse": 9.393,
+        "tuned_mae": 4.021,
+        "tuned_rmse": 9.326
+    },
+    "Knowledge Park II Greater Noida": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 6.67,
+        "baseline_rmse": 7.561,
+        "tuned_mae": 6.916,
+        "tuned_rmse": 7.688
+    },
+    "Lajpat Nagar": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 5.55,
+        "baseline_rmse": 6.925,
+        "tuned_mae": 6.026,
+        "tuned_rmse": 7.486
+    },
+    "Lajpat Nagar, Delhi": {
+        "selected_model": "tuned",
+        "model_file": "Lajpat_Nagar__Delhi_xgboost_tuned.joblib",
+        "baseline_mae": 2.203,
+        "baseline_rmse": 3.06,
+        "tuned_mae": 1.756,
+        "tuned_rmse": 2.525
+    },
+    "Meerut City Railway Station": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 2.894,
+        "baseline_rmse": 3.438,
+        "tuned_mae": 3.01,
+        "tuned_rmse": 3.651
+    },
+    "Neelam Chowk Faridabad": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 9.051,
+        "baseline_rmse": 11.469,
+        "tuned_mae": 9.296,
+        "tuned_rmse": 11.35
+    },
+    "Nehru Place": {
+        "selected_model": "tuned",
+        "model_file": "Nehru_Place_xgboost_tuned.joblib",
+        "baseline_mae": 3.213,
+        "baseline_rmse": 3.692,
+        "tuned_mae": 3.183,
+        "tuned_rmse": 3.649
+    },
+    "New Delhi Railway Station": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 2.501,
+        "baseline_rmse": 3.322,
+        "tuned_mae": 2.52,
+        "tuned_rmse": 3.324
+    },
+    "Noida Expressway": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 2.323,
+        "baseline_rmse": 3.997,
+        "tuned_mae": 4.096,
+        "tuned_rmse": 5.003
+    },
+    "Noida Sector 18": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 7.627,
+        "baseline_rmse": 9.847,
+        "tuned_mae": 7.945,
+        "tuned_rmse": 10.025
+    },
+    "Noida Sector 62": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 27.62,
+        "baseline_rmse": 35.229,
+        "tuned_mae": 27.62,
+        "tuned_rmse": 35.229
+    },
+    "Pari Chowk Greater Noida": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 4.4,
+        "baseline_rmse": 4.79,
+        "tuned_mae": 4.959,
+        "tuned_rmse": 5.365
+    },
+    "Rajiv Chowk Gurugram": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 5.794,
+        "baseline_rmse": 6.484,
+        "tuned_mae": 5.92,
+        "tuned_rmse": 7.49
+    },
+    "Rohini, Delhi": {
+        "selected_model": "tuned",
+        "model_file": "Rohini__Delhi_xgboost_tuned.joblib",
+        "baseline_mae": 6.654,
+        "baseline_rmse": 7.388,
+        "tuned_mae": 4.909,
+        "tuned_rmse": 7.077
+    },
+    "Saket": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 5.239,
+        "baseline_rmse": 5.942,
+        "tuned_mae": 5.301,
+        "tuned_rmse": 6.074
+    },
+    "Saket, Delhi": {
+        "selected_model": "tuned",
+        "model_file": "Saket__Delhi_xgboost_tuned.joblib",
+        "baseline_mae": 0.81,
+        "baseline_rmse": 1.184,
+        "tuned_mae": 0.564,
+        "tuned_rmse": 0.829
+    },
+    "Shaheed Sthal New Bus Adda": {
+        "selected_model": "baseline",
+        "model_file": null,
+        "baseline_mae": 3.208,
+        "baseline_rmse": 4.437,
+        "tuned_mae": 3.184,
+        "tuned_rmse": 4.648
+    }
+}

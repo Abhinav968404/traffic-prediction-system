@@ -1,0 +1,816 @@
+[
+    {
+        "location": "Anand Vihar ISBT",
+        "best_cv_mae": 4.4,
+        "baseline_test": {
+            "MAE": 3.165,
+            "RMSE": 3.378
+        },
+        "tuned_test": {
+            "MAE": 4.605,
+            "RMSE": 5.477
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 10,
+            "n_estimators": 500,
+            "min_child_weight": 1,
+            "max_depth": 2,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Anand_Vihar_ISBT_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Badkhal Faridabad",
+        "best_cv_mae": 2.642,
+        "baseline_test": {
+            "MAE": 2.914,
+            "RMSE": 3.206
+        },
+        "tuned_test": {
+            "MAE": 3.229,
+            "RMSE": 3.396
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 5,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.05,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Badkhal_Faridabad_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Baghpat Bus Stand",
+        "best_cv_mae": 3.481,
+        "baseline_test": {
+            "MAE": 10.778,
+            "RMSE": 13.735
+        },
+        "tuned_test": {
+            "MAE": 10.796,
+            "RMSE": 13.75
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Baghpat_Bus_Stand_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Baraut",
+        "best_cv_mae": 1.639,
+        "baseline_test": {
+            "MAE": 8.07,
+            "RMSE": 9.816
+        },
+        "tuned_test": {
+            "MAE": 8.191,
+            "RMSE": 9.939
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Baraut_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Begum Bridge Meerut",
+        "best_cv_mae": 2.258,
+        "baseline_test": {
+            "MAE": 5.378,
+            "RMSE": 6.441
+        },
+        "tuned_test": {
+            "MAE": 4.786,
+            "RMSE": 5.798
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 10,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 2,
+            "learning_rate": 0.05,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Begum_Bridge_Meerut_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Chandni Chowk",
+        "best_cv_mae": 0.028,
+        "baseline_test": {
+            "MAE": 21.587,
+            "RMSE": 28.303
+        },
+        "tuned_test": {
+            "MAE": 21.542,
+            "RMSE": 28.26
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 300,
+            "min_child_weight": 1,
+            "max_depth": 3,
+            "learning_rate": 0.01,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Chandni_Chowk_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Connaught Place",
+        "best_cv_mae": 2.807,
+        "baseline_test": {
+            "MAE": 4.638,
+            "RMSE": 5.382
+        },
+        "tuned_test": {
+            "MAE": 4.097,
+            "RMSE": 4.814
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 5,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 5,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Connaught_Place_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Connaught Place, Delhi",
+        "best_cv_mae": 2.959,
+        "baseline_test": {
+            "MAE": 5.905,
+            "RMSE": 7.132
+        },
+        "tuned_test": {
+            "MAE": 5.743,
+            "RMSE": 7.022
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Connaught_Place__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Cyber City Gurugram",
+        "best_cv_mae": 3.402,
+        "baseline_test": {
+            "MAE": 3.577,
+            "RMSE": 4.327
+        },
+        "tuned_test": {
+            "MAE": 3.243,
+            "RMSE": 4.222
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 10,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 2,
+            "learning_rate": 0.05,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Cyber_City_Gurugram_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Delhi Road Meerut",
+        "best_cv_mae": 4.665,
+        "baseline_test": {
+            "MAE": 3.92,
+            "RMSE": 5.201
+        },
+        "tuned_test": {
+            "MAE": 3.78,
+            "RMSE": 4.942
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.01,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Delhi_Road_Meerut_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Dwarka",
+        "best_cv_mae": 6.243,
+        "baseline_test": {
+            "MAE": 11.396,
+            "RMSE": 15.96
+        },
+        "tuned_test": {
+            "MAE": 16.238,
+            "RMSE": 21.211
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 10,
+            "n_estimators": 500,
+            "min_child_weight": 1,
+            "max_depth": 2,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Dwarka_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Dwarka, Delhi",
+        "best_cv_mae": 3.339,
+        "baseline_test": {
+            "MAE": 1.719,
+            "RMSE": 2.773
+        },
+        "tuned_test": {
+            "MAE": 1.781,
+            "RMSE": 2.646
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 5,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Dwarka__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Faridabad Railway Station",
+        "best_cv_mae": 1.706,
+        "baseline_test": {
+            "MAE": 3.848,
+            "RMSE": 4.762
+        },
+        "tuned_test": {
+            "MAE": 3.783,
+            "RMSE": 4.754
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Faridabad_Railway_Station_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Greater Noida West",
+        "best_cv_mae": 0.884,
+        "baseline_test": {
+            "MAE": 8.169,
+            "RMSE": 9.658
+        },
+        "tuned_test": {
+            "MAE": 8.571,
+            "RMSE": 10.015
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 100,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Greater_Noida_West_xgboost_tuned.joblib"
+    },
+    {
+        "location": "IFFCO Chowk",
+        "best_cv_mae": 6.664,
+        "baseline_test": {
+            "MAE": 18.33,
+            "RMSE": 22.616
+        },
+        "tuned_test": {
+            "MAE": 18.285,
+            "RMSE": 22.174
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 5,
+            "n_estimators": 100,
+            "min_child_weight": 3,
+            "max_depth": 3,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/IFFCO_Chowk_xgboost_tuned.joblib"
+    },
+    {
+        "location": "IGI Airport Terminal 3",
+        "best_cv_mae": 7.297,
+        "baseline_test": {
+            "MAE": 19.39,
+            "RMSE": 21.754
+        },
+        "tuned_test": {
+            "MAE": 19.553,
+            "RMSE": 21.834
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/IGI_Airport_Terminal_3_xgboost_tuned.joblib"
+    },
+    {
+        "location": "India Gate",
+        "best_cv_mae": 6.905,
+        "baseline_test": {
+            "MAE": 4.582,
+            "RMSE": 6.308
+        },
+        "tuned_test": {
+            "MAE": 4.364,
+            "RMSE": 6.105
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 300,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.05,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/India_Gate_xgboost_tuned.joblib"
+    },
+    {
+        "location": "India Gate, Delhi",
+        "best_cv_mae": 1.934,
+        "baseline_test": {
+            "MAE": 0.802,
+            "RMSE": 1.592
+        },
+        "tuned_test": {
+            "MAE": 0.802,
+            "RMSE": 1.592
+        },
+        "best_parameters": {
+            "n_estimators": 300,
+            "max_depth": 3,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8,
+            "min_child_weight": 1,
+            "reg_lambda": 1
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/India_Gate__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Indirapuram Ghaziabad",
+        "best_cv_mae": 3.786,
+        "baseline_test": {
+            "MAE": 3.794,
+            "RMSE": 4.601
+        },
+        "tuned_test": {
+            "MAE": 4.66,
+            "RMSE": 5.422
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 100,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Indirapuram_Ghaziabad_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Kaushambi Ghaziabad",
+        "best_cv_mae": 2.209,
+        "baseline_test": {
+            "MAE": 8.439,
+            "RMSE": 9.913
+        },
+        "tuned_test": {
+            "MAE": 8.78,
+            "RMSE": 10.257
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Kaushambi_Ghaziabad_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Khekra",
+        "best_cv_mae": 1.725,
+        "baseline_test": {
+            "MAE": 4.111,
+            "RMSE": 9.393
+        },
+        "tuned_test": {
+            "MAE": 4.021,
+            "RMSE": 9.326
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.01,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Khekra_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Knowledge Park II Greater Noida",
+        "best_cv_mae": 3.5,
+        "baseline_test": {
+            "MAE": 6.67,
+            "RMSE": 7.561
+        },
+        "tuned_test": {
+            "MAE": 6.916,
+            "RMSE": 7.688
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 10,
+            "n_estimators": 500,
+            "min_child_weight": 1,
+            "max_depth": 2,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Knowledge_Park_II_Greater_Noida_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Lajpat Nagar",
+        "best_cv_mae": 6.61,
+        "baseline_test": {
+            "MAE": 5.55,
+            "RMSE": 6.925
+        },
+        "tuned_test": {
+            "MAE": 6.026,
+            "RMSE": 7.486
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 300,
+            "min_child_weight": 1,
+            "max_depth": 3,
+            "learning_rate": 0.01,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Lajpat_Nagar_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Lajpat Nagar, Delhi",
+        "best_cv_mae": 1.661,
+        "baseline_test": {
+            "MAE": 2.203,
+            "RMSE": 3.06
+        },
+        "tuned_test": {
+            "MAE": 1.756,
+            "RMSE": 2.525
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 100,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Lajpat_Nagar__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Meerut City Railway Station",
+        "best_cv_mae": 2.743,
+        "baseline_test": {
+            "MAE": 2.894,
+            "RMSE": 3.438
+        },
+        "tuned_test": {
+            "MAE": 3.01,
+            "RMSE": 3.651
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.01,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Meerut_City_Railway_Station_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Neelam Chowk Faridabad",
+        "best_cv_mae": 2.825,
+        "baseline_test": {
+            "MAE": 9.051,
+            "RMSE": 11.469
+        },
+        "tuned_test": {
+            "MAE": 9.296,
+            "RMSE": 11.35
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 1,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 2,
+            "learning_rate": 0.1,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Neelam_Chowk_Faridabad_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Nehru Place",
+        "best_cv_mae": 1.985,
+        "baseline_test": {
+            "MAE": 3.213,
+            "RMSE": 3.692
+        },
+        "tuned_test": {
+            "MAE": 3.183,
+            "RMSE": 3.649
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Nehru_Place_xgboost_tuned.joblib"
+    },
+    {
+        "location": "New Delhi Railway Station",
+        "best_cv_mae": 2.738,
+        "baseline_test": {
+            "MAE": 2.501,
+            "RMSE": 3.322
+        },
+        "tuned_test": {
+            "MAE": 2.52,
+            "RMSE": 3.324
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/New_Delhi_Railway_Station_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Noida Expressway",
+        "best_cv_mae": 0.738,
+        "baseline_test": {
+            "MAE": 2.323,
+            "RMSE": 3.997
+        },
+        "tuned_test": {
+            "MAE": 4.096,
+            "RMSE": 5.003
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 1.0
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Noida_Expressway_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Noida Sector 18",
+        "best_cv_mae": 2.746,
+        "baseline_test": {
+            "MAE": 7.627,
+            "RMSE": 9.847
+        },
+        "tuned_test": {
+            "MAE": 7.945,
+            "RMSE": 10.025
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Noida_Sector_18_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Noida Sector 62",
+        "best_cv_mae": 3.59,
+        "baseline_test": {
+            "MAE": 27.62,
+            "RMSE": 35.229
+        },
+        "tuned_test": {
+            "MAE": 27.62,
+            "RMSE": 35.229
+        },
+        "best_parameters": {
+            "n_estimators": 300,
+            "max_depth": 3,
+            "learning_rate": 0.03,
+            "subsample": 0.8,
+            "colsample_bytree": 0.8,
+            "min_child_weight": 1,
+            "reg_lambda": 1
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Noida_Sector_62_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Pari Chowk Greater Noida",
+        "best_cv_mae": 1.806,
+        "baseline_test": {
+            "MAE": 4.4,
+            "RMSE": 4.79
+        },
+        "tuned_test": {
+            "MAE": 4.959,
+            "RMSE": 5.365
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 5,
+            "n_estimators": 100,
+            "min_child_weight": 3,
+            "max_depth": 3,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Pari_Chowk_Greater_Noida_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Rajiv Chowk Gurugram",
+        "best_cv_mae": 4.602,
+        "baseline_test": {
+            "MAE": 5.794,
+            "RMSE": 6.484
+        },
+        "tuned_test": {
+            "MAE": 5.92,
+            "RMSE": 7.49
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 10,
+            "n_estimators": 300,
+            "min_child_weight": 5,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Rajiv_Chowk_Gurugram_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Rohini, Delhi",
+        "best_cv_mae": 2.091,
+        "baseline_test": {
+            "MAE": 6.654,
+            "RMSE": 7.388
+        },
+        "tuned_test": {
+            "MAE": 4.909,
+            "RMSE": 7.077
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 1,
+            "n_estimators": 500,
+            "min_child_weight": 3,
+            "max_depth": 5,
+            "learning_rate": 0.1,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Rohini__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Saket",
+        "best_cv_mae": 2.782,
+        "baseline_test": {
+            "MAE": 5.239,
+            "RMSE": 5.942
+        },
+        "tuned_test": {
+            "MAE": 5.301,
+            "RMSE": 6.074
+        },
+        "best_parameters": {
+            "subsample": 1.0,
+            "reg_lambda": 5,
+            "n_estimators": 500,
+            "min_child_weight": 5,
+            "max_depth": 4,
+            "learning_rate": 0.05,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Saket_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Saket, Delhi",
+        "best_cv_mae": 2.939,
+        "baseline_test": {
+            "MAE": 0.81,
+            "RMSE": 1.184
+        },
+        "tuned_test": {
+            "MAE": 0.564,
+            "RMSE": 0.829
+        },
+        "best_parameters": {
+            "subsample": 0.8,
+            "reg_lambda": 5,
+            "n_estimators": 200,
+            "min_child_weight": 1,
+            "max_depth": 5,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.7
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Saket__Delhi_xgboost_tuned.joblib"
+    },
+    {
+        "location": "Shaheed Sthal New Bus Adda",
+        "best_cv_mae": 2.295,
+        "baseline_test": {
+            "MAE": 3.208,
+            "RMSE": 4.437
+        },
+        "tuned_test": {
+            "MAE": 3.184,
+            "RMSE": 4.648
+        },
+        "best_parameters": {
+            "subsample": 0.7,
+            "reg_lambda": 5,
+            "n_estimators": 300,
+            "min_child_weight": 3,
+            "max_depth": 4,
+            "learning_rate": 0.03,
+            "colsample_bytree": 0.8
+        },
+        "model_path": "/Users/abhinavgoyal/Desktop/traffic-prediction-system/ml/saved_models/tuned/Shaheed_Sthal_New_Bus_Adda_xgboost_tuned.joblib"
+    }
+]

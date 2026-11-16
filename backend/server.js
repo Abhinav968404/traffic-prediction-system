@@ -650,17 +650,45 @@ app.get("/api/traffic/forecast", async (req, res) => {
                     { timeout: 30000 }
                 );
 
-                const result = JSON.parse(stdout);
+                
+const result = JSON.parse(stdout);
 
-                return res.json({
-                    success: true,
-                    ...result,
-                    intervalMinutes:
-                        model.toLowerCase() === "xgboost" ? 15 : null,
-                    note: model.toLowerCase() === "xgboost"
-                        ? "XGBoost forecasts use 15-minute future intervals."
-                        : "Forecast steps represent future observations, not guaranteed 15-minute intervals."
-                });
+let modelSelection = null;
+
+if (model.toLowerCase() === "xgboost") {
+    const selectionPath = path.resolve(
+        __dirname,
+        "../ml/xgboost_model_selection.json"
+    );
+
+    const selectionData = JSON.parse(
+        await fs.readFile(selectionPath, "utf8")
+    );
+
+    modelSelection = selectionData[location] || null;
+}
+
+return res.json({
+    success: true,
+    ...result,
+    modelSelection: modelSelection ? {
+        selectedModel: modelSelection.selected_model,
+        modelLabel:
+            modelSelection.selected_model === "tuned"
+                ? "Fine-tuned XGBoost"
+                : "Baseline XGBoost",
+        baselineMAE: modelSelection.baseline_mae,
+        tunedMAE: modelSelection.tuned_mae,
+        baselineRMSE: modelSelection.baseline_rmse,
+        tunedRMSE: modelSelection.tuned_rmse
+    } : null,
+    intervalMinutes:
+        model.toLowerCase() === "xgboost" ? 15 : null,
+    note: model.toLowerCase() === "xgboost"
+        ? "XGBoost forecasts use 15-minute future intervals."
+        : "Forecast steps represent future observations, not guaranteed 15-minute intervals."
+});
+
             } catch (error) {
                 console.error(
                     "ARIMA/SARIMA forecast failed:",
